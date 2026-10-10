@@ -593,9 +593,14 @@ function exportPng(onlyFrame){
   const sc=+$('#exScale').value,cv=sheetCanvas(sc,onlyFrame),url=cv.toDataURL('image/png');
   $('#outImg').src=url;$('#outImg').style.width=Math.min(cv.width,640)+'px';$('#out').hidden=false;
   const name=fileBase()+(onlyFrame?'_quadro':'_sheet')+(sc>1?'_'+sc+'x':'')+'.png';
-  $('#dl').href=url;$('#dl').download=name;$('#dl').textContent='Baixar '+name;
+  $('#dl').href=url;$('#dl').download=name;$('#dl').textContent='Baixar '+name;lastExport={cv,name};
   renderJson();
 }
+// Dentro do Claude, downloads passam pela capacidade "downloads"; em outros sites o link normal funciona.
+let dlApi=null,lastExport=null;
+if(window.claude&&window.claude.use)window.claude.use('downloads').then(d=>{dlApi=d}).catch(()=>{});
+$('#dl').addEventListener('click',e=>{if(!dlApi||!lastExport)return;e.preventDefault();
+  lastExport.cv.toBlob(blob=>{dlApi.save({filename:lastExport.name,data:blob}).then(()=>toast('Imagem salva')).catch(err=>{if(err&&err.code!=='declined')toast('Não deu para baixar aqui: toque e segure a imagem')})},'image/png')});
 function renderJson(){
   if(!asset)return;const sc=+$('#exScale').value;
   $('#json').value=JSON.stringify({nome:fileBase(),arquivo:fileBase()+'_sheet'+(sc>1?'_'+sc+'x':'')+'.png',larguraQuadro:asset.w*sc,alturaQuadro:asset.h*sc,escala:sc,fps:+$('#fps').value,
