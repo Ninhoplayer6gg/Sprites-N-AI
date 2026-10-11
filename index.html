@@ -7,10 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: oficina de pixel art de uma coluna, palco do sprite no topo, abas fixas embaixo como app de celular */
+/* Layout: oficina de pixel art em uma coluna; palco do sprite sempre no topo, abas fixas embaixo como app de celular */
 :root{
   --bg:#1a1730; --panel:#24203f; --panel-2:#2e2950; --line:#3f3870;
-  --fg:#efeaff; --muted:#a8a0d0; --accent:#ffb547; --accent-ink:#2a1a00; --danger:#ff6b7a;
+  --fg:#efeaff; --muted:#aaa2d4; --accent:#ffb547; --accent-ink:#2a1a00; --ok:#7fe0a0; --danger:#ff7a88;
   --check-a:#2b2748; --check-b:#332e55;
   --f-display:"Pixelify Sans","Courier New",monospace;
   --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -19,646 +19,379 @@
 }
 *{box-sizing:border-box}
 html,body{background:var(--bg);color:var(--fg)}
-body{margin:0;font-family:var(--f-body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:0 calc(84px + env(safe-area-inset-bottom,0px))}
+body{margin:0;font-family:var(--f-body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:0 calc(88px + env(safe-area-inset-bottom,0px))}
 [hidden]{display:none!important}
-.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;gap:10px;padding-block:12px 10px;border-bottom:1px solid var(--line)}
-header h1{font-family:var(--f-display);font-weight:700;font-size:1.45rem;margin:0;letter-spacing:.02em}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;align-items:center;gap:10px;padding-block:12px 4px}
+header h1{font-family:var(--f-display);font-weight:700;font-size:1.5rem;margin:0;letter-spacing:.02em}
 header h1 span{color:var(--accent)}
-header .sub{color:var(--muted);font-size:.8rem;margin-left:auto;text-align:right}
-.logo{width:28px;height:28px;image-rendering:pixelated}
-h2{font-family:var(--f-display);font-weight:500;font-size:1.15rem;margin:0;text-wrap:balance}
+header .sub{color:var(--muted);font-size:.8rem;margin-left:auto;text-align:right;max-width:15ch}
+.logo{width:32px;height:32px;image-rendering:pixelated}
+h2{font-family:var(--f-display);font-weight:500;font-size:1.2rem;margin:0;text-wrap:balance}
 .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
-.stage{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
-.stage-top{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
-.prev-box{flex:0 0 auto;width:min(100%,224px);aspect-ratio:1;max-width:100%}
-.prev-box canvas{width:100%;height:100%;image-rendering:pixelated;border-radius:4px;display:block}
-.stage-info{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:10px}
-.meta{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.sheet-scroll{overflow-x:auto;background:var(--panel-2);border-radius:4px;padding:6px}
-.sheet-scroll canvas{image-rendering:pixelated;display:block}
-.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.hint{color:var(--muted);font-size:.86rem;margin:0;max-width:65ch}
+.stage{z-index:4;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;box-shadow:0 8px 20px -14px #000}
+body[data-aba="criar"] .stage,body[data-aba="ia"] .stage{position:sticky;top:env(safe-area-inset-top,0px)}
+.stage-top{display:flex;gap:12px;align-items:flex-start}
+.prev-col{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;width:clamp(116px,34vw,192px)}
+.prev-col canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;border-radius:4px;display:block;max-width:100%}
+.fundos{display:flex;gap:4px}
+.fundos button{flex:1;height:18px;border-radius:3px;border:1px solid var(--line);cursor:pointer;padding:0}
+.fundos button[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:1px}
+.stage-info{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:6px}
+.stage-info select,.stage-info input[type=text]{min-height:36px;padding:6px 10px}
+.meta{font-family:var(--f-mono);font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.sheet-scroll{overflow-x:auto;background:var(--panel-2);border-radius:4px;padding:4px;max-height:84px;overflow-y:auto}
+.sheet-scroll canvas{image-rendering:pixelated;display:block;cursor:pointer}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.grow{flex:1 1 150px}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
-.seg button,.btn{font:inherit;font-size:.9rem;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:8px 12px;cursor:pointer;min-height:40px}
-.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.seg button,.btn,.tools button{font:inherit;font-size:.9rem;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:8px 12px;cursor:pointer;min-height:40px}
+.seg button[aria-pressed="true"],.tools button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;font-family:var(--f-display);font-size:1.05rem}
-.btn.danger{color:var(--danger)}
-.btn:active,.seg button:active{transform:translateY(1px)}
-button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.perigo,.tools .perigo{color:var(--danger)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:active,.seg button:active,.tools button:active{transform:translateY(1px)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .panel{display:flex;flex-direction:column;gap:14px}
-.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
 .field{display:flex;flex-direction:column;gap:5px;min-width:0}
-select,input[type=text],input[type=number]{font:inherit;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:8px 10px;min-height:40px;width:100%}
+.field.chk{justify-content:flex-end}
+.field.chk label{display:flex;gap:8px;align-items:center;min-height:40px;font-size:.9rem}
+.field.chk input{width:20px;height:20px;accent-color:var(--accent)}
+select,input[type=text],textarea{font:inherit;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:8px 10px;min-height:40px;width:100%}
+textarea{resize:vertical;font-size:.95rem}
 input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-radius:5px;background:var(--panel-2);padding:3px}
+input[type=range]{width:100%;accent-color:var(--accent)}
 input[type=file]{font:inherit;color:var(--muted);max-width:100%}
-.variants{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px}
-.variants button{padding:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:5px;cursor:pointer;aspect-ratio:1;max-width:100%}
+details.grupo,details.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:0 12px}
+details.grupo summary,details.card summary{cursor:pointer;font-family:var(--f-display);font-size:1.02rem;padding:10px 0}
+details.grupo[open],details.card[open]{padding-bottom:12px}
+details.card>*:not(summary){margin-top:10px}
+.pers-grupos{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.82rem;color:var(--fg);background:transparent;border:1px dashed var(--line);border-radius:999px;padding:6px 10px;cursor:pointer;text-align:left}
+.chips label{display:flex;gap:6px;align-items:center;font-size:.9rem;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.chips input{accent-color:var(--accent);width:18px;height:18px}
+.variants{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.variants button{padding:3px;background:var(--panel-2);border:1px solid var(--line);border-radius:5px;cursor:pointer;aspect-ratio:1;max-width:100%}
 .variants button.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 .variants canvas{width:100%;height:100%;image-rendering:pixelated;display:block}
-.hint{color:var(--muted);font-size:.85rem;margin:0;max-width:65ch}
+.vazio{grid-column:1/-1;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:18px;text-align:center}
+.ia-status{border-radius:6px;padding:10px 12px;font-size:.9rem;border:1px solid var(--line);background:var(--panel)}
+.ia-status.ok{border-color:#3d7a5a;color:var(--ok)}
+.ia-status.off{color:var(--muted)}
+.ia-out{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:6px;padding:10px 12px;font-size:.92rem}
+.ia-out.erro{border-left-color:var(--danger)}
+.ia-out.carregando::after{content:"";display:inline-block;width:10px;height:10px;margin-left:8px;background:var(--accent);animation:pisca .8s steps(2) infinite;vertical-align:middle}
+@keyframes pisca{50%{opacity:0}}
+#iaFotoPrev{max-width:160px;border-radius:6px;border:1px solid var(--line)}
 .tools{display:flex;flex-wrap:wrap;gap:6px}
-.tools button{min-width:44px}
-.ed-wrap{display:flex;justify-content:center;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto}
-#edCanvas{touch-action:none;image-rendering:pixelated;max-width:100%}
-.swatches{display:flex;flex-wrap:wrap;gap:6px}
-.swatches button{width:32px;height:32px;border-radius:4px;border:2px solid var(--line);cursor:pointer;padding:0}
+.tools button{min-width:44px;padding:8px 10px;font-size:.85rem}
+.tools.rolar{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.tools.rolar button{flex:0 0 auto}
+.ed-wrap{display:flex;justify-content:center;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;max-height:70vh}
+#edCanvas{touch-action:none;image-rendering:pixelated;flex:0 0 auto}
+.swatches{display:flex;flex-wrap:wrap;gap:5px}
+.swatches button{width:30px;height:30px;border-radius:4px;border:2px solid var(--line);cursor:pointer;padding:0}
 .swatches button.sel{border-color:var(--fg);box-shadow:0 0 0 2px var(--accent)}
 .frames{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
-.frames button{flex:0 0 auto;width:60px;height:60px;padding:3px;background:var(--panel-2);border:1px solid var(--line);border-radius:5px;cursor:pointer;position:relative}
+.frames button{flex:0 0 auto;width:62px;height:62px;padding:3px;background:var(--panel-2);border:1px solid var(--line);border-radius:5px;cursor:pointer;position:relative}
 .frames button.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.frames button span{position:absolute;right:3px;bottom:1px;font-family:var(--f-mono);font-size:.65rem;color:var(--muted)}
+.frames button span{position:absolute;right:4px;bottom:2px;font-family:var(--f-mono);font-size:.65rem;color:var(--muted)}
 .frames canvas{width:100%;height:100%;image-rendering:pixelated}
 .out{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
 .out img{image-rendering:pixelated;max-width:100%;background:repeating-conic-gradient(var(--check-a) 0 25%,var(--check-b) 0 50%) 0 0/16px 16px;border-radius:4px}
-textarea{width:100%;min-height:150px;font-family:var(--f-mono);font-size:.78rem;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:10px}
+#exJson{min-height:140px;font-family:var(--f-mono);font-size:.76rem}
 .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px;display:flex;flex-direction:column;gap:6px;min-width:0}
-.card canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;max-width:100%}
-.card .nm{font-size:.85rem;overflow-wrap:anywhere}
+.card canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;max-width:100%;border-radius:4px}
+.card .nm{font-size:.88rem;overflow-wrap:anywhere}
 .card .row button{flex:1;min-height:34px;padding:4px 8px;font-size:.8rem}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--panel);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav.tabs button{font-family:var(--f-display);font-size:1rem;background:none;border:0;color:var(--muted);padding:12px 4px 14px;cursor:pointer;border-top:3px solid transparent}
+.passos{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:.88rem;max-width:65ch}
+.passos b{color:var(--fg)}
+code{font-family:var(--f-mono);font-size:.85em;color:var(--fg)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--panel);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs button{font-family:var(--f-display);font-size:.95rem;background:none;border:0;color:var(--muted);padding:12px 2px 14px;cursor:pointer;border-top:3px solid transparent}
 nav.tabs button[aria-selected="true"]{color:var(--accent);border-top-color:var(--accent)}
-.toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:5px;font-weight:700;font-size:.9rem;z-index:20}
-.empty{color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:20px;text-align:center}
+nav.tabs button.ia{color:var(--fg)}
+nav.tabs button.ia[aria-selected="true"]{color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:5px;font-weight:700;font-size:.9rem;z-index:20;max-width:calc(100vw - 32px);text-align:center}
+@media (max-width:420px){.prev-col{width:112px}header .sub{display:none}.stage .meta{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
-<body>
+<body data-aba="criar">
 <div class="wrap">
   <header>
-    <canvas class="logo" id="logo" width="16" height="16"></canvas>
+    <canvas class="logo" id="logo" width="32" height="32"></canvas>
     <h1>Sprites<span>-N-</span>AI</h1>
-    <div class="sub">gerador de assets<br>para jogos</div>
+    <div class="sub">personagens, monstros, itens e cenários</div>
   </header>
 
-  <!-- Palco: sempre visível -->
   <section class="stage" aria-label="Asset atual">
     <div class="stage-top">
-      <div class="prev-box"><canvas id="prev" width="224" height="224"></canvas></div>
+      <div class="prev-col">
+        <canvas id="prev" width="192" height="192" aria-label="Prévia animada"></canvas>
+        <div class="fundos" id="fundos" aria-label="Cor do fundo">
+          <button type="button" data-fundo="xadrez" title="Xadrez" style="background:repeating-conic-gradient(#555 0 25%,#999 0 50%) 0 0/8px 8px"></button>
+          <button type="button" data-fundo="escuro" title="Escuro" style="background:#14111f"></button>
+          <button type="button" data-fundo="claro" title="Claro" style="background:#ece8f4"></button>
+          <button type="button" data-fundo="grama" title="Grama" style="background:#5a8a3a"></button>
+          <button type="button" data-fundo="azul" title="Azul" style="background:#3a6ab0"></button>
+        </div>
+      </div>
       <div class="stage-info">
-        <div class="field">
-          <label class="label" for="assetName">Nome do asset</label>
-          <input type="text" id="assetName" value="heroi">
-        </div>
-        <div class="field">
-          <label class="label" for="rowSel">Animação</label>
-          <select id="rowSel"></select>
-        </div>
-        <div class="field">
-          <label class="label" for="fps">Velocidade <span id="fpsVal">6</span> fps</label>
-          <input type="range" id="fps" min="1" max="16" value="6">
-        </div>
+        <div class="field"><label class="label" for="nome">Nome</label><input type="text" id="nome" value="heroi"></div>
+        <div class="field"><label class="label" for="animSel">Animação</label><select id="animSel"></select></div>
+        <div class="field"><label class="label" for="fps">Velocidade <span id="fpsVal">8 fps</span></label><input type="range" id="fps" min="1" max="20" value="8"></div>
         <div class="meta" id="meta"></div>
       </div>
     </div>
-    <div>
-      <div class="label" style="margin-bottom:6px">Spritesheet</div>
-      <div class="sheet-scroll"><canvas id="sheet"></canvas></div>
-    </div>
+    <div class="sheet-scroll"><canvas id="sheet" aria-label="Spritesheet: toque para escolher a animação"></canvas></div>
   </section>
 
-  <!-- GERAR -->
-  <section class="panel" id="tab-gerar">
+  <!-- CRIAR -->
+  <section class="panel" id="tab-criar">
     <div class="field">
-      <span class="label">O que gerar</span>
-      <div class="seg" id="typeSeg">
-        <button data-type="personagem" aria-pressed="true">Personagem</button>
-        <button data-type="monstro" aria-pressed="false">Monstro</button>
-        <button data-type="item" aria-pressed="false">Item</button>
-        <button data-type="terreno" aria-pressed="false">Terreno</button>
-        <button data-type="foto" aria-pressed="false">Foto → Pixel</button>
+      <span class="label">O que criar</span>
+      <div class="seg" id="tipoSeg">
+        <button type="button" data-tipo="personagem" aria-pressed="true">Personagem</button>
+        <button type="button" data-tipo="monstro" aria-pressed="false">Monstro</button>
+        <button type="button" data-tipo="item" aria-pressed="false">Item</button>
+        <button type="button" data-tipo="cenario" aria-pressed="false">Cenário</button>
+        <button type="button" data-tipo="foto" aria-pressed="false">Foto → Pixel</button>
       </div>
     </div>
-
     <div class="row">
-      <button class="btn primary" id="btnNew">Gerar novo</button>
-      <div class="field" style="flex:1 1 140px">
-        <label class="label" for="seed">Semente (repete o mesmo resultado)</label>
-        <input type="text" id="seed" value="heroi-1">
+      <button type="button" class="btn primary" id="btnNovo">Gerar novo</button>
+      <div class="field grow"><label class="label" for="semente">Semente (repete o mesmo resultado)</label><input type="text" id="semente"></div>
+    </div>
+
+    <div id="op-personagem" class="panel">
+      <div class="fields"><div class="field"><label class="label" for="classe">Classe</label><select id="classe"></select></div></div>
+      <div class="pers-grupos" id="persCampos"></div>
+      <div class="field"><span class="label">Animações na spritesheet</span>
+        <div class="chips" id="persAnims">
+          <label><input type="checkbox" value="parado" checked> Parado</label>
+          <label><input type="checkbox" value="andar" checked> Andar</label>
+          <label><input type="checkbox" value="atacar" checked> Atacar</label>
+          <label><input type="checkbox" value="dano" checked> Dano</label>
+        </div>
       </div>
+      <p class="hint">Cada animação vem nas 4 direções: baixo, esquerda, direita e cima.</p>
     </div>
-
-    <div id="opts-personagem" class="fields">
-      <div class="field"><label class="label" for="cSkin">Pele</label><input type="color" id="cSkin"></div>
-      <div class="field"><label class="label" for="cHair">Cabelo</label><input type="color" id="cHair"></div>
-      <div class="field"><label class="label" for="cShirt">Roupa</label><input type="color" id="cShirt"></div>
-      <div class="field"><label class="label" for="cPants">Calça</label><input type="color" id="cPants"></div>
-      <div class="field"><label class="label" for="cShoes">Botas</label><input type="color" id="cShoes"></div>
-      <div class="field"><label class="label" for="cGem">Cor da arma</label><input type="color" id="cGem"></div>
-      <div class="field"><label class="label" for="sHair">Cabelo (estilo)</label>
-        <select id="sHair"><option>curto</option><option>longo</option><option>espetado</option><option>coque</option><option>franja</option><option>careca</option></select></div>
-      <div class="field"><label class="label" for="sEyes">Olhos</label>
-        <select id="sEyes"><option>ponto</option><option>grande</option><option>fechado</option></select></div>
-      <div class="field"><label class="label" for="sWeapon">Equipamento</label>
-        <select id="sWeapon"><option>nenhum</option><option>espada</option><option>cajado</option><option>escudo</option></select></div>
+    <div id="op-monstro" class="fields" hidden>
+      <div class="field"><label class="label" for="monTipo">Monstro</label><select id="monTipo"></select></div>
+      <div class="field"><label class="label" for="monCont">Contorno</label><select id="monCont"></select></div>
+      <div class="field chk"><label><input type="checkbox" id="monSombra"> Sombra no chão</label></div>
     </div>
-
-    <div id="opts-monstro" class="fields" hidden>
-      <div class="field"><label class="label" for="sMon">Forma</label>
-        <select id="sMon"><option value="monstro">Criatura</option><option value="nave">Nave</option><option value="robo">Robô</option></select></div>
-    </div>
-    <div id="opts-item" class="fields" hidden>
-      <div class="field"><label class="label" for="sItem">Item</label>
-        <select id="sItem"><option value="aleatorio">Qualquer um</option><option value="pocao">Poção</option><option value="gema">Gema</option><option value="moeda">Moeda</option><option value="espada">Espada</option><option value="escudo">Escudo</option></select></div>
-    </div>
-    <div id="opts-terreno" class="fields" hidden>
-      <div class="field"><label class="label" for="sTile">Terreno (16×16, emenda sem costura)</label>
-        <select id="sTile"><option value="grama">Grama</option><option value="terra">Terra</option><option value="pedra">Pedra</option><option value="agua">Água (animada)</option><option value="areia">Areia</option><option value="madeira">Madeira</option></select></div>
-    </div>
-    <div id="opts-foto" class="panel" hidden>
-      <p class="hint">Escolha uma foto ou um desenho seu feito no papel. A ferramenta reduz a imagem para poucos pixels e poucas cores, no estilo pixel art.</p>
-      <input type="file" id="photo" accept="image/*">
+    <div id="op-item" class="panel" hidden>
       <div class="fields">
-        <div class="field"><label class="label" for="pSize">Tamanho</label>
-          <select id="pSize"><option>16</option><option selected>32</option><option>48</option><option>64</option></select></div>
-        <div class="field"><label class="label" for="pCols">Cores</label>
-          <select id="pCols"><option>4</option><option selected>8</option><option>12</option><option>16</option><option>24</option></select></div>
-        <div class="field"><label class="label" for="pBg">Fundo</label>
-          <select id="pBg"><option value="1">Remover fundo</option><option value="0">Manter fundo</option></select></div>
+        <div class="field"><label class="label" for="itemTipo">Item</label><select id="itemTipo"></select></div>
+        <div class="field"><label class="label" for="itemTier">Material</label><select id="itemTier"></select></div>
+      </div>
+      <button type="button" class="btn" id="btnPacote">Pacote com 16 itens diferentes</button>
+    </div>
+    <div id="op-cenario" class="panel" hidden>
+      <div class="seg" id="cenSeg">
+        <button type="button" data-cen="piso" aria-pressed="true">Piso</button>
+        <button type="button" data-cen="tileset" aria-pressed="false">Tileset com bordas</button>
+        <button type="button" data-cen="decor" aria-pressed="false">Decoração</button>
+      </div>
+      <div class="fields">
+        <div class="field" id="f-piso"><label class="label" for="cenPiso">Piso 16×16</label><select id="cenPiso"></select></div>
+        <div class="field" id="f-tsA" hidden><label class="label" for="cenA">Terreno de cima</label><select id="cenA"></select></div>
+        <div class="field" id="f-tsB" hidden><label class="label" for="cenB">Terreno de baixo</label><select id="cenB"></select></div>
+        <div class="field" id="f-decor" hidden><label class="label" for="cenDecor">Decoração</label><select id="cenDecor"></select></div>
+      </div>
+      <p class="hint" id="cenDica"></p>
+    </div>
+    <div id="op-foto" class="panel" hidden>
+      <p class="hint">Escolha uma foto ou um desenho seu feito no papel. A ferramenta reduz a imagem para poucos pixels e poucas cores, no estilo pixel art.</p>
+      <input type="file" id="fArquivo" accept="image/*">
+      <div class="fields">
+        <div class="field"><label class="label" for="fSize">Tamanho</label><select id="fSize"><option>16</option><option selected>32</option><option>48</option><option>64</option></select></div>
+        <div class="field"><label class="label" for="fCores">Cores</label><select id="fCores"><option>4</option><option selected>8</option><option>12</option><option>16</option><option>24</option></select></div>
+        <div class="field"><label class="label" for="fFundo">Fundo</label><select id="fFundo"><option value="1">Remover fundo</option><option value="0">Manter fundo</option></select></div>
+        <div class="field chk"><label><input type="checkbox" id="fContorno"> Contorno escuro</label></div>
       </div>
     </div>
 
     <div class="field">
       <span class="label">Variações: toque para escolher</span>
-      <div class="variants" id="variants"></div>
-      <button class="btn" id="btnMore" style="align-self:flex-start">Mais variações</button>
+      <div class="variants" id="variantes"></div>
+      <button type="button" class="btn" id="btnMais" style="align-self:flex-start">Mais variações</button>
     </div>
+  </section>
+
+  <!-- IA -->
+  <section class="panel" id="tab-ia" hidden>
+    <div class="ia-status" id="iaStatus">Verificando se a IA está disponível…</div>
+    <div class="seg" id="iaSeg">
+      <button type="button" data-ia="pers" aria-pressed="true">Personagem</button>
+      <button type="button" data-ia="livre" aria-pressed="false">Desenho livre</button>
+      <button type="button" data-ia="foto" aria-pressed="false">Minha foto</button>
+    </div>
+    <div id="ia-pers" class="panel">
+      <div class="field"><label class="label" for="iaPersTxt">Descreva o personagem</label>
+        <textarea id="iaPersTxt" rows="3" placeholder="Ex.: uma maga elfa de cabelo azul, capa roxa e cajado de gelo"></textarea></div>
+      <button type="button" class="btn primary ia-btn" id="iaPersBtn">Criar com IA</button>
+      <div class="field"><span class="label">Ideias</span><div class="chips" id="iaPersEx"></div></div>
+      <p class="hint">A IA escolhe raça, roupa, cabelo, cores e arma. O personagem já sai com todas as animações nas 4 direções.</p>
+    </div>
+    <div id="ia-livre" class="panel" hidden>
+      <div class="field"><label class="label" for="iaLivreTxt">O que a IA deve desenhar?</label>
+        <textarea id="iaLivreTxt" rows="3" placeholder="Ex.: um baú de tesouro aberto cheio de moedas de ouro"></textarea></div>
+      <div class="field"><span class="label">Ideias</span><div class="chips" id="iaLivreEx"></div></div>
+      <div class="fields">
+        <div class="field"><label class="label" for="iaTam">Tamanho</label><select id="iaTam"><option value="16">16×16</option><option value="24">24×24</option><option value="32" selected>32×32</option></select></div>
+        <div class="field"><label class="label" for="iaQual">Capricho</label><select id="iaQual"><option value="0">Normal</option><option value="1">Caprichado (mais lento)</option></select></div>
+      </div>
+      <button type="button" class="btn primary ia-btn" id="iaLivreBtn">Desenhar com IA</button>
+      <p class="hint">A IA desenha pixel por pixel e você vê o desenho aparecer na prévia lá em cima.</p>
+    </div>
+    <div id="ia-foto" class="panel" hidden>
+      <p class="hint">Mande uma foto sua, de um amigo, do seu pet ou de um desenho. A IA cria um personagem inspirado nela, com todas as animações.</p>
+      <input type="file" id="iaFoto" accept="image/*">
+      <img id="iaFotoPrev" alt="Foto escolhida" hidden>
+      <p class="hint" id="iaFotoAviso" hidden>Mandar fotos para a IA não está disponível aqui.</p>
+      <button type="button" class="btn primary" id="iaFotoBtn" disabled>Transformar em personagem</button>
+    </div>
+    <div class="ia-out" id="iaOut" hidden></div>
+    <button type="button" class="btn ia-parar" hidden style="align-self:flex-start">Parar</button>
   </section>
 
   <!-- EDITAR -->
   <section class="panel" id="tab-editar" hidden>
-    <div class="tools" id="tools">
-      <button class="btn" data-tool="lapis" aria-pressed="true">Lápis</button>
-      <button class="btn" data-tool="borracha" aria-pressed="false">Borracha</button>
-      <button class="btn" data-tool="balde" aria-pressed="false">Balde</button>
-      <button class="btn" data-tool="conta" aria-pressed="false">Conta-gotas</button>
-      <button class="btn" id="btnMirror" aria-pressed="false">Espelho</button>
-      <button class="btn" id="btnUndo">Desfazer</button>
+    <div class="tools rolar" id="ferramentas">
+      <button type="button" data-f="lapis" aria-pressed="true">Lápis</button>
+      <button type="button" data-f="borracha" aria-pressed="false">Borracha</button>
+      <button type="button" data-f="balde" aria-pressed="false">Balde</button>
+      <button type="button" data-f="conta" aria-pressed="false">Conta-gotas</button>
+      <button type="button" data-f="linha" aria-pressed="false">Linha</button>
+      <button type="button" data-f="retangulo" aria-pressed="false">Retângulo</button>
+      <button type="button" data-f="clarear" aria-pressed="false">Clarear</button>
+      <button type="button" data-f="escurecer" aria-pressed="false">Escurecer</button>
+      <button type="button" data-f="mover" aria-pressed="false">Mover</button>
+    </div>
+    <div class="tools rolar">
+      <button type="button" id="edEspelho" aria-pressed="false">Espelho</button>
+      <button type="button" id="edGrade" aria-pressed="true">Grade</button>
+      <button type="button" id="edFantasma" aria-pressed="false">Ver quadro anterior</button>
+      <button type="button" id="edDesfazer">Desfazer</button>
+      <button type="button" id="edRefazer">Refazer</button>
+      <button type="button" id="edContorno">Contorno</button>
+      <button type="button" id="edLimpar" class="perigo">Limpar</button>
+      <button type="button" id="edZoomMenos" aria-label="Diminuir zoom">−</button>
+      <button type="button" id="edZoomMais" aria-label="Aumentar zoom">+</button>
     </div>
     <div class="row">
-      <div class="field" style="width:84px"><label class="label" for="edColor">Cor</label><input type="color" id="edColor" value="#ffb547"></div>
-      <div class="swatches" id="swatches" style="flex:1"></div>
+      <div class="field" style="width:84px"><label class="label" for="edCor">Cor</label><input type="color" id="edCor" value="#ffb547"></div>
+      <div class="field grow"><label class="label" for="edPaleta">Paleta</label><select id="edPaleta"></select></div>
     </div>
-    <div class="ed-wrap"><canvas id="edCanvas"></canvas></div>
+    <div class="swatches" id="cores"></div>
+    <div class="ed-wrap" id="edWrap"><canvas id="edCanvas"></canvas></div>
     <div class="field">
-      <span class="label">Quadros da animação</span>
-      <div class="frames" id="frames"></div>
-      <div class="row">
-        <button class="btn" id="btnDup">Duplicar quadro</button>
-        <button class="btn danger" id="btnDel">Apagar quadro</button>
-        <button class="btn" id="btnFlip">Espelhar quadro</button>
+      <span class="label">Quadros desta animação</span>
+      <div class="frames" id="quadros"></div>
+      <div class="tools rolar">
+        <button type="button" id="qNovo">Novo</button>
+        <button type="button" id="qDup">Duplicar</button>
+        <button type="button" id="qEsq">◀ Mover</button>
+        <button type="button" id="qDir">Mover ▶</button>
+        <button type="button" id="qEsp">Espelhar</button>
+        <button type="button" id="qDel" class="perigo">Apagar</button>
       </div>
     </div>
-    <p class="hint">Desenhe com o dedo. O modo Espelho pinta dos dois lados ao mesmo tempo, bom para personagens de frente. Gerar um asset novo apaga as edições que não foram salvas na Galeria.</p>
+    <details class="card">
+      <summary>Pedir para a IA mudar este quadro</summary>
+      <textarea id="edIaTxt" rows="2" placeholder="Ex.: troque a espada por um machado de fogo"></textarea>
+      <div class="row"><button type="button" class="btn primary" id="edIaBtn">Pedir à IA</button><button type="button" class="btn" id="edIaParar" hidden>Parar</button></div>
+      <p class="hint" id="edIaMsg">A IA redesenha só o quadro que está aberto no editor.</p>
+    </details>
+    <details class="card">
+      <summary>Começar um desenho em branco</summary>
+      <div class="row">
+        <div class="field" style="width:130px"><label class="label" for="edTam">Tamanho</label><select id="edTam"><option>16</option><option>24</option><option selected>32</option><option>48</option><option>64</option></select></div>
+        <button type="button" class="btn" id="edBranco">Criar tela em branco</button>
+      </div>
+    </details>
+    <p class="hint">Desenhe com o dedo. Espelho pinta dos dois lados ao mesmo tempo. Clarear e Escurecer mudam o tom dos pixels sem trocar a cor. Gerar um asset novo apaga as edições que não foram salvas na Galeria.</p>
   </section>
 
   <!-- EXPORTAR -->
   <section class="panel" id="tab-exportar" hidden>
     <div class="fields">
-      <div class="field"><label class="label" for="exScale">Aumentar pixels</label>
-        <select id="exScale"><option value="1">1× (original)</option><option value="2">2×</option><option value="4" selected>4×</option><option value="8">8×</option><option value="16">16×</option></select></div>
+      <div class="field"><label class="label" for="exEscala">Aumentar pixels</label>
+        <select id="exEscala"><option value="1">1× (original)</option><option value="2">2×</option><option value="4" selected>4×</option><option value="8">8×</option><option value="16">16×</option></select></div>
+      <div class="field"><label class="label" for="exMargem">Espaço entre quadros</label>
+        <select id="exMargem"><option value="0">Nenhum</option><option value="1">1 pixel</option><option value="2">2 pixels</option></select></div>
     </div>
     <div class="row">
-      <button class="btn primary" id="btnSheet">Spritesheet PNG</button>
-      <button class="btn" id="btnFrame">Só o quadro atual</button>
-      <button class="btn" id="btnSave">Salvar na Galeria</button>
+      <button type="button" class="btn primary" id="exFolha">Spritesheet PNG</button>
+      <button type="button" class="btn" id="exGif">GIF animado</button>
+      <button type="button" class="btn" id="exQuadro">Só o quadro atual</button>
     </div>
-    <div class="out" id="out" hidden>
-      <img id="outImg" alt="Imagem exportada">
-      <p class="hint" id="outHint">No celular: toque e segure a imagem e escolha <b>Salvar imagem</b>. Ou use o botão abaixo.</p>
-      <a class="btn" id="dl" download="sprite.png" href="#">Baixar PNG</a>
+    <div class="out" id="exOut" hidden>
+      <img id="exImg" alt="Imagem exportada">
+      <p class="hint">No celular: toque e segure a imagem e escolha <b>Salvar imagem</b>. Ou use o botão abaixo.</p>
+      <button type="button" class="btn" id="exBaixar">Baixar</button>
     </div>
     <div class="field">
-      <span class="label">Dados para a engine (Godot, Unity, GameMaker, Construct)</span>
-      <textarea id="json" readonly></textarea>
-      <button class="btn" id="btnCopy" style="align-self:flex-start">Copiar dados</button>
+      <span class="label">Dados para a engine</span>
+      <textarea id="exJson" readonly></textarea>
+      <div class="row">
+        <button type="button" class="btn" id="exCopiar">Copiar dados</button>
+        <button type="button" class="btn" id="exJsonBaixar">Baixar .json</button>
+        <button type="button" class="btn" id="exSalvar">Salvar na Galeria</button>
+      </div>
     </div>
-    <p class="hint">Na engine, importe o PNG e corte em quadros do tamanho mostrado em <code>larguraQuadro</code> × <code>alturaQuadro</code>. Cada linha da spritesheet é uma animação (no personagem: baixo, esquerda, direita, cima). Use “1×” e desligue o filtro/suavização da textura na engine para os pixels ficarem nítidos.</p>
+    <details class="card">
+      <summary>Como usar no seu jogo</summary>
+      <ol class="passos">
+        <li>Exporte em <b>1×</b>: é o tamanho real dos pixels. Aumente depois, na engine.</li>
+        <li><b>Godot</b>: arraste o PNG para o projeto e crie um <code>AnimatedSprite2D</code>. Em <i>SpriteFrames</i>, use <b>Adicionar quadros de uma spritesheet</b> com as colunas e linhas dos dados acima. Deixe o filtro de textura em <b>Nearest</b>.</li>
+        <li><b>Unity</b>: importe o PNG, mude <i>Sprite Mode</i> para <b>Multiple</b> e <i>Filter Mode</i> para <b>Point</b>. No <i>Sprite Editor</i>, corte por <b>Grid By Cell Size</b> com a largura e a altura do quadro.</li>
+        <li><b>GameMaker</b> e <b>Construct</b>: use a opção de importar uma tira ou spritesheet e informe colunas, linhas e o tamanho do quadro.</li>
+        <li>Cada linha da spritesheet é uma animação. No personagem a ordem é: parado, andar, atacar e dano, cada uma virada para baixo, esquerda, direita e cima.</li>
+      </ol>
+    </details>
   </section>
 
   <!-- GALERIA -->
   <section class="panel" id="tab-galeria" hidden>
     <h2>Seus assets salvos</h2>
-    <p class="hint">Ficam guardados neste navegador, neste celular. Exporte o PNG dos que você quer manter para sempre.</p>
-    <div class="gallery" id="gallery"></div>
+    <p class="hint">Ficam guardados neste navegador, neste celular. Baixe um backup de vez em quando para não perder nada.</p>
+    <div class="gallery" id="galeria"></div>
+    <div class="row">
+      <button type="button" class="btn" id="galBackup">Baixar backup</button>
+      <label class="btn" for="galAbrir">Abrir backup</label>
+      <input type="file" id="galAbrir" accept=".json,application/json" hidden>
+    </div>
   </section>
 </div>
 
 <nav class="tabs" role="tablist">
-  <button role="tab" data-tab="gerar" aria-selected="true">Gerar</button>
-  <button role="tab" data-tab="editar" aria-selected="false">Editar</button>
-  <button role="tab" data-tab="exportar" aria-selected="false">Exportar</button>
-  <button role="tab" data-tab="galeria" aria-selected="false">Galeria</button>
+  <button type="button" role="tab" data-aba="criar" aria-selected="true">Criar</button>
+  <button type="button" role="tab" data-aba="ia" class="ia" aria-selected="false">IA ✦</button>
+  <button type="button" role="tab" data-aba="editar" aria-selected="false">Editar</button>
+  <button type="button" role="tab" data-aba="exportar" aria-selected="false">Exportar</button>
+  <button type="button" role="tab" data-aba="galeria" aria-selected="false">Galeria</button>
 </nav>
 <div class="toast" id="toast" hidden></div>
 
+<script src="js/base.js"></script>
+<script src="js/personagem.js"></script>
+<script src="js/monstros.js"></script>
+<script src="js/itens.js"></script>
+<script src="js/cenario.js"></script>
+<script src="js/exportar.js"></script>
+<script src="js/ia.js"></script>
+<script src="js/app.js"></script>
 <script>
-"use strict";
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-
-/* ---------- aleatoriedade com semente ---------- */
-function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}return h>>>0}
-function rng(seed){let a=hashStr(String(seed));return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const pick=(r,a)=>a[Math.floor(r()*a.length)];
-const WORDS=['heroi','slime','dragao','mago','orc','fada','golem','ninja','pirata','robo','fantasma','cavaleiro','bruxa','goblin','sapo','gato'];
-const newSeed=()=>WORDS[Math.floor(Math.random()*WORDS.length)]+'-'+Math.floor(Math.random()*9000+1000);
-
-/* ---------- cores ---------- */
-function hex2rgb(h){h=h.replace('#','');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
-function rgb2hex(r,g,b){return'#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('')}
-function mix(a,b,t){const p=hex2rgb(a),q=hex2rgb(b);return rgb2hex(p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t,p[2]+(q[2]-p[2])*t)}
-const dark=(c,t)=>mix(c,'#1a1230',t), light=(c,t)=>mix(c,'#fff6e0',t);
-function hsl(h,s,l){h=((h%360)+360)%360;s/=100;l=Math.max(0,Math.min(100,l))/100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,9-k(n),1));return rgb2hex(255*f(0),255*f(8),255*f(4))}
-const OUTLINE='#1a1424';
-
-/* ---------- buffer de pixels ---------- */
-class Buf{
-  constructor(w,h,p){this.w=w;this.h=h;this.p=p?p.slice():new Array(w*h).fill(null)}
-  in(x,y){return x>=0&&y>=0&&x<this.w&&y<this.h}
-  get(x,y){return this.in(x,y)?this.p[y*this.w+x]:null}
-  set(x,y,c){if(this.in(x,y))this.p[y*this.w+x]=c}
-  rect(x,y,w,h,c){for(let j=0;j<h;j++)for(let i=0;i<w;i++)this.set(x+i,y+j,c)}
-  line(y,x0,x1,c){for(let x=x0;x<=x1;x++)this.set(x,y,c)}
-  flipX(){const b=new Buf(this.w,this.h);for(let y=0;y<this.h;y++)for(let x=0;x<this.w;x++)b.set(this.w-1-x,y,this.get(x,y));return b}
-  shift(dx,dy){const b=new Buf(this.w,this.h);for(let y=0;y<this.h;y++)for(let x=0;x<this.w;x++)b.set(x+dx,y+dy,this.get(x,y));return b}
-}
-function shade(b){const o=new Buf(b.w,b.h,b.p);for(let y=0;y<b.h;y++)for(let x=0;x<b.w;x++){const c=o.get(x,y);if(!c||c===OUTLINE)continue;
-  if(!o.get(x+1,y)||!o.get(x,y+1))b.set(x,y,dark(c,.22));else if(!o.get(x-1,y)||!o.get(x,y-1))b.set(x,y,light(c,.16))}return b}
-function outline(b,col=OUTLINE){const o=new Buf(b.w,b.h,b.p);for(let y=0;y<b.h;y++)for(let x=0;x<b.w;x++){if(o.get(x,y))continue;
-  if(o.get(x+1,y)||o.get(x-1,y)||o.get(x,y+1)||o.get(x,y-1))b.set(x,y,col)}return b}
-
-/* ---------- PERSONAGEM ---------- */
-const SKINS=['#f6d3b3','#eab896','#d29a6c','#a86b45','#7a4a2e','#5a3622','#9fd18b','#b9c6e8'];
-const HAIRS=['#2b1d16','#5b3a24','#a8642c','#e3b04b','#f2e2b8','#c0392b','#e8e8f0','#3f6fd8','#8e44ad','#2fa36b','#ff7eb6'];
-function randomChar(seed){const r=rng(seed);return{
-  skin:pick(r,SKINS),hair:pick(r,HAIRS),hairStyle:pick(r,['curto','longo','espetado','coque','franja','careca']),
-  eyes:pick(r,['ponto','grande','fechado']),weapon:pick(r,['nenhum','espada','cajado','escudo']),
-  shirt:hsl(r()*360,45+r()*35,42+r()*16),pants:hsl(r()*360,20+r()*30,26+r()*16),shoes:hsl(20+r()*30,30,18+r()*12),gem:hsl(r()*360,80,58)}}
-const STEEL='#e4ebf2',STEEL2='#98a5b8',GOLD='#e8be4a',WOOD='#7a4b2a';
-function drawChar(o,dir,f){
-  if(dir==='esquerda')return drawChar(o,'direita',f).flipX();
-  const b=new Buf(32,32),step=f===1?1:f===3?-1:0;
-  const SK=o.skin,HR=o.hair,EYE='#1d1626',MOUTH=dark(SK,.45),BLUSH=mix(SK,'#ff6b8a',.4),BELT=dark(o.shirt,.45);
-  const hs=o.hairStyle,w=o.weapon;
-  const eyeFront=()=>{
-    if(o.eyes==='ponto'){b.rect(12,11,1,2,EYE);b.rect(19,11,1,2,EYE)}
-    else if(o.eyes==='grande'){b.rect(11,10,3,3,EYE);b.set(11,10,'#ffffff');b.rect(18,10,3,3,EYE);b.set(18,10,'#ffffff')}
-    else{b.line(12,11,13,EYE);b.line(12,18,19,EYE)}
-    b.set(15,14,MOUTH);b.set(16,14,MOUTH);b.set(11,13,BLUSH);b.set(20,13,BLUSH)};
-  if(dir==='baixo'||dir==='cima'){
-    const front=dir==='baixo',aL=front?step:-step,aR=-aL;
-    const swordX=front?23:7,swordDy=front?aR:aL;
-    if(!front&&w==='espada'){b.rect(7,11+swordDy,1,9,STEEL);b.rect(8,11+swordDy,1,9,STEEL2);b.set(7,10+swordDy,STEEL);b.line(20+swordDy,6,9,GOLD)}
-    if(!front&&w==='cajado'){b.rect(8,6+aL,1,23,WOOD);b.rect(7,3+aL,3,3,o.gem)}
-    if(front&&hs==='longo')b.rect(8,8,16,12,dark(HR,.15));
-    const leg=(x,l)=>{b.rect(x,24,3,4-l,o.pants);b.rect(x,28-l,3,2,o.shoes)};
-    leg(12,step===1?1:0);leg(17,step===-1?1:0);
-    b.rect(11,16,10,8,o.shirt);b.line(23,11,20,BELT);
-    const arm=(x,dy)=>{b.rect(x,16+dy,2,5,o.shirt);b.rect(x,21+dy,2,2,SK)};
-    arm(9,aL);arm(21,aR);
-    b.rect(9,4,14,12,SK);[[9,4],[22,4],[9,15],[22,15]].forEach(([x,y])=>b.set(x,y,null));
-    if(front){
-      eyeFront();
-      if(hs!=='careca'){
-        if(hs==='franja'){b.rect(9,3,14,6,HR);b.rect(9,9,2,4,HR);b.rect(21,9,2,4,HR)}
-        else{b.rect(9,3,14,5,HR);b.rect(9,8,2,4,HR);b.rect(21,8,2,4,HR);b.line(8,12,14,HR)}
-        b.set(9,3,null);b.set(22,3,null);
-        if(hs==='longo'){b.rect(8,8,3,11,HR);b.rect(21,8,3,11,HR)}
-      }else{b.set(12,5,light(SK,.45));b.set(13,5,light(SK,.45))}
-    }else if(hs!=='careca'){
-      b.rect(9,3,14,12,HR);b.set(9,3,null);b.set(22,3,null);
-      if(hs==='longo')b.rect(10,15,12,5,HR);
-    }
-    if(hs==='espetado')[9,12,15,18,21].forEach(x=>{b.rect(x,2,2,1,HR);b.set(x+(x<16?0:1),1,HR)});
-    if(hs==='coque')b.rect(13,0,6,3,HR);
-    if(front&&w==='espada'){b.rect(23,11+swordDy,1,9,STEEL);b.rect(24,11+swordDy,1,9,STEEL2);b.set(23,10+swordDy,STEEL);b.line(20+swordDy,22,25,GOLD);b.rect(21,21+swordDy,2,2,SK)}
-    if(front&&w==='cajado'){b.rect(23,6+aR,1,23,WOOD);b.rect(22,3+aR,3,3,o.gem);b.set(22,3+aR,light(o.gem,.6))}
-    if(w==='escudo'){const sx=front?5:22,dy=front?aL:aR;b.rect(sx,16+dy,6,7,STEEL2);b.rect(sx+1,17+dy,4,5,dark(o.gem,.2));b.rect(sx+2,17+dy,2,5,GOLD);b.set(sx,22+dy,null);b.set(sx+5,22+dy,null)}
-  }else{ // direita
-    const sx=step*2,adx=-step;
-    if(hs==='longo')b.rect(9,8,6,12,dark(HR,.15));
-    if(w==='escudo'){b.rect(8,16,5,7,STEEL2);b.rect(9,17,3,5,dark(o.gem,.2))}
-    const leg=(x,pc,sc)=>{b.rect(x,24,3,4,pc);b.rect(x,28,4,2,sc)};
-    leg(14-sx,dark(o.pants,.25),dark(o.shoes,.25));leg(14+sx,o.pants,o.shoes);
-    b.rect(12,16,8,8,o.shirt);b.line(23,12,19,BELT);
-    b.rect(10,4,12,12,SK);[[10,4],[21,4],[10,15],[21,15]].forEach(([x,y])=>b.set(x,y,null));
-    b.set(22,12,SK);
-    if(o.eyes==='ponto')b.rect(18,11,1,2,EYE);else if(o.eyes==='grande'){b.rect(18,10,2,3,EYE);b.set(18,10,'#ffffff')}else b.line(11,18,19,EYE);
-    b.set(20,14,MOUTH);b.set(19,13,BLUSH);
-    if(hs!=='careca'){
-      if(hs==='franja'){b.rect(10,3,12,6,HR);b.rect(10,9,5,4,HR)}
-      else{b.rect(10,3,12,4,HR);b.rect(10,7,5,6,HR);b.rect(19,7,2,1,HR)}
-      b.set(21,3,null);
-      if(hs==='longo')b.rect(9,7,6,12,HR);
-      if(hs==='espetado'){[11,14,17].forEach(x=>{b.rect(x,2,2,1,HR);b.set(x+1,1,HR)});b.rect(8,5,2,2,HR)}
-      if(hs==='coque')b.rect(10,1,4,3,HR);
-    }else b.set(14,5,light(SK,.45));
-    if(w==='cajado'){b.rect(16+adx,6,1,24,WOOD);b.rect(15+adx,3,3,3,o.gem);b.set(15+adx,3,light(o.gem,.6))}
-    b.rect(15+adx,16,3,5,light(o.shirt,.12));b.rect(15+adx,21,3,2,SK);
-    if(w==='espada'){const x=16+adx;b.rect(x,10,1,10,STEEL);b.rect(x+1,10,1,10,STEEL2);b.set(x,9,STEEL);b.line(20,x-1,x+2,GOLD);b.rect(15+adx,21,3,2,SK)}
-  }
-  return outline(shade(b));
-}
-
-/* ---------- MONSTROS (máscaras espelhadas) ---------- */
-// 0 = vazio, 1 = corpo ou vazio, 2 = corpo ou contorno, -1 = contorno
-const MASKS={
-  monstro:{w:6,h:12,eyes:[3,4],m:[0,0,0,0,0,0, 0,0,0,0,1,1, 0,0,0,1,1,2, 0,0,1,1,2,2, 0,1,1,2,2,2, 0,1,1,2,2,2, 1,1,2,2,2,2, 1,1,1,2,2,2, 0,1,1,1,2,2, 0,0,1,1,1,1, 0,0,1,1,0,1, 0,0,1,1,0,0]},
-  nave:{w:6,h:12,m:[0,0,0,0,0,0, 0,0,0,0,1,1, 0,0,0,0,1,-1, 0,0,0,1,1,-1, 0,0,0,1,1,-1, 0,0,1,1,1,-1, 0,1,1,1,2,2, 0,1,1,1,2,2, 0,1,1,1,2,2, 0,1,1,1,1,-1, 0,0,0,1,1,1, 0,0,0,0,0,0]},
-  robo:{w:4,h:11,eyes:[2,2],m:[0,0,0,0, 0,1,1,1, 0,1,2,2, 0,0,1,2, 0,0,0,2, 1,1,1,2, 0,1,1,2, 0,0,0,2, 0,0,0,2, 0,1,2,2, 1,1,0,0]}
-};
-function genMonster(kind,seed){
-  const r=rng(seed+'|'+kind),M=MASKS[kind],hw=M.w,H=M.h;
-  const cell=[];for(let i=0;i<hw*H;i++){let v=M.m[i];if(v===1)v=r()<.5?1:0;else if(v===2)v=r()<.5?1:-1;cell.push(v)}
-  const hue=r()*360,hue2=hue+(r()<.5?0:60+r()*120),sat=45+r()*40;
-  const half=new Buf(hw,H);
-  for(let y=0;y<H;y++)for(let x=0;x<hw;x++){const v=cell[y*hw+x];
-    if(v===1){const t=y/H,hh=t>.55?hue2:hue,l=38+28*Math.sin(t*Math.PI)+(r()-.5)*14;half.set(x,y,hsl(hh,sat,l))}
-    else if(v===-1)half.set(x,y,OUTLINE)}
-  if(M.eyes){const[ex,ey]=M.eyes;half.set(ex,ey,'#ffffff');half.set(ex,ey+1,kind==='robo'?hsl(hue+180,90,60):'#14101c')}
-  const W=hw*2,full=new Buf(W,H);
-  for(let y=0;y<H;y++)for(let x=0;x<hw;x++){const c=half.get(x,y);full.set(x,y,c);full.set(W-1-x,y,c)}
-  const out=new Buf(16,16),ox=Math.floor((16-W)/2),oy=Math.floor((16-H)/2);
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(full.get(x,y))out.set(ox+x,oy+y,full.get(x,y));
-  const f0=outline(out);
-  return[f0.p,f0.shift(0,1).p];
-}
-
-/* ---------- ITENS ---------- */
-const ITEMS=['pocao','gema','moeda','espada','escudo'];
-function genItem(kind,seed){
-  const r=rng(seed+'|item');if(kind==='aleatorio')kind=pick(r,ITEMS);
-  const b=new Buf(16,16),hue=r()*360,c=hsl(hue,70+r()*20,52),cd=dark(c,.3),cl=light(c,.4);
-  if(kind==='pocao'){
-    const glass='#cfe3f0';b.rect(7,1,2,1,WOOD);b.rect(7,2,2,3,glass);
-    const rows={5:[6,9],6:[5,10],7:[4,11],8:[4,11],9:[4,11],10:[4,11],11:[4,11],12:[5,10],13:[6,9]};
-    for(const y in rows){const[a,z]=rows[y];b.line(+y,a,z,+y>=8?c:glass)}
-    b.line(8,5,10,cl);b.set(5,7,'#ffffff');b.set(5,8,'#ffffff');
-  }else if(kind==='gema'){
-    const rows=[[5,10],[4,11],[3,12],[4,11],[5,10],[6,9],[7,8]];
-    rows.forEach(([a,z],i)=>b.line(i+4,a,z,i===2?cl:i<2?light(c,.15):c));
-    b.set(6,5,'#ffffff');b.line(10,7,8,cd);b.line(9,6,9,cd);
-  }else if(kind==='moeda'){
-    const g=hsl(40+r()*15,80,55);
-    for(let y=0;y<16;y++)for(let x=0;x<16;x++){const d=Math.hypot(x-7.5,y-7.5);if(d<6)b.set(x,y,d>4.6?dark(g,.15):g)}
-    b.rect(7,5,2,6,light(g,.45));b.set(5,5,'#ffffff');
-  }else if(kind==='espada'){
-    for(let i=0;i<8;i++){b.set(6+i,9-i,STEEL);b.set(7+i,9-i,STEEL2)}b.set(14,1,STEEL);
-    [[3,8],[4,9],[5,10],[6,11],[7,12]].forEach(([x,y])=>b.set(x,y,GOLD));
-    [[4,11],[3,12],[2,13]].forEach(([x,y])=>b.set(x,y,WOOD));b.set(1,14,c);
-  }else{
-    const rows={2:[3,12],3:[3,12],4:[3,12],5:[3,12],6:[3,12],7:[3,12],8:[3,12],9:[3,12],10:[4,11],11:[5,10],12:[6,9],13:[7,8]};
-    for(const y in rows){const[a,z]=rows[y];b.line(+y,a,z,STEEL2)}
-    for(const y in rows){const[a,z]=rows[y];if(+y>2&&+y<13)b.line(+y,a+1,z-1,c)}
-    b.rect(7,3,2,9,GOLD);b.line(6,4,11,GOLD);
-  }
-  const f0=outline(shade(b));const f1=new Buf(16,16,f0.p);
-  const sp=[[12,3],[3,4],[11,11],[13,6]][Math.floor(r()*4)];f1.set(sp[0],sp[1],'#ffffff');f1.set(sp[0]+1,sp[1],'#fff6c0');f1.set(sp[0]-1,sp[1],'#fff6c0');f1.set(sp[0],sp[1]-1,'#fff6c0');f1.set(sp[0],sp[1]+1,'#fff6c0');
-  return{name:kind,frames:[f0.p,f1.p]};
-}
-
-/* ---------- TERRENO (16x16 sem costura) ---------- */
-function genTile(kind,seed){
-  const r=rng(seed+'|'+kind),frames=[];
-  const nFrames=kind==='agua'?4:1;
-  const base={grama:hsl(95+r()*30,45,38),terra:hsl(22+r()*12,38,30),pedra:hsl(225,8,46),agua:hsl(200+r()*15,65,44),areia:hsl(40+r()*8,55,70),madeira:hsl(26+r()*8,45,38)}[kind];
-  const noise=[];for(let i=0;i<256;i++)noise.push(r());
-  const waves=[];for(let k=0;k<5;k++)waves.push([Math.floor(r()*16),Math.floor(r()*16),3+Math.floor(r()*3)]);
-  const blades=[];for(let k=0;k<7;k++)blades.push([Math.floor(r()*16),Math.floor(r()*16)]);
-  const seams=[];for(let k=0;k<4;k++)seams.push(Math.floor(r()*16));
-  for(let f=0;f<nFrames;f++){
-    const b=new Buf(16,16);
-    for(let y=0;y<16;y++)for(let x=0;x<16;x++){const n=noise[y*16+x];let c=base;
-      if(kind==='pedra'){const row=Math.floor(y/4),mx=(x+(row%2)*4)%8;c=(y%4===3||mx===7)?dark(base,.45):n<.2?dark(base,.12):n>.85?light(base,.15):base}
-      else if(kind==='madeira'){const row=Math.floor(y/4);c=(y%4===3||x===seams[row])?dark(base,.45):n<.25?dark(base,.12):n>.9?light(base,.12):base}
-      else c=n<.15?dark(base,.2):n>.88?light(base,.15):base;
-      b.set(x,y,c)}
-    if(kind==='grama')blades.forEach(([x,y])=>{b.set(x,y,light(base,.3));b.set(x,(y+1)%16,light(base,.12))});
-    if(kind==='terra'||kind==='areia')blades.slice(0,4).forEach(([x,y])=>{b.set(x,y,dark(base,.3));b.set((x+1)%16,y,light(base,.2))});
-    if(kind==='agua')waves.forEach(([x0,y,len])=>{for(let i=0;i<len;i++)b.set((x0+i+f*4)%16,y,light(base,.35))});
-    frames.push(b.p);
-  }
-  return frames;
-}
-
-/* ---------- FOTO -> PIXEL ---------- */
-function photoToFrame(img,size,ncol,removeBg){
-  const ar=img.naturalWidth/img.naturalHeight;let w=size,h=Math.max(1,Math.round(size/ar));if(ar<1){h=size;w=Math.max(1,Math.round(size*ar))}
-  const cv=document.createElement('canvas');cv.width=w;cv.height=h;const cx=cv.getContext('2d');cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality='high';cx.drawImage(img,0,0,w,h);
-  const d=cx.getImageData(0,0,w,h).data,px=[];
-  for(let i=0;i<w*h;i++)if(d[i*4+3]>=128)px.push([d[i*4],d[i*4+1],d[i*4+2]]);
-  if(!px.length)return{w,h,p:new Array(w*h).fill(null)};
-  const lum=p=>p[0]*.3+p[1]*.59+p[2]*.11,sorted=px.slice().sort((a,b)=>lum(a)-lum(b));
-  let cen=[];const k=Math.min(ncol,px.length);for(let i=0;i<k;i++)cen.push(sorted[Math.floor((i+.5)/k*sorted.length)].slice());
-  const near=p=>{let bi=0,bd=1e9;cen.forEach((c,i)=>{const dd=(p[0]-c[0])**2+(p[1]-c[1])**2+(p[2]-c[2])**2;if(dd<bd){bd=dd;bi=i}});return bi};
-  for(let it=0;it<10;it++){const s=cen.map(()=>[0,0,0,0]);px.forEach(p=>{const i=near(p);s[i][0]+=p[0];s[i][1]+=p[1];s[i][2]+=p[2];s[i][3]++});s.forEach((v,i)=>{if(v[3])cen[i]=[v[0]/v[3],v[1]/v[3],v[2]/v[3]]})}
-  const hexes=cen.map(c=>rgb2hex(c[0],c[1],c[2]));
-  const b=new Buf(w,h);for(let i=0;i<w*h;i++)if(d[i*4+3]>=128)b.p[i]=hexes[near([d[i*4],d[i*4+1],d[i*4+2]])];
-  if(removeBg){const bg=b.get(0,0),stack=[];if(bg){for(let x=0;x<w;x++)stack.push([x,0],[x,h-1]);for(let y=0;y<h;y++)stack.push([0,y],[w-1,y]);
-    while(stack.length){const[x,y]=stack.pop();if(b.get(x,y)!==bg)continue;b.set(x,y,null);stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1])}}}
-  return{w,h,p:b.p};
-}
-
-/* ---------- estado ---------- */
-let type='personagem',asset=null,curRow=0,curFrame=0,photoImg=null,variantSeeds=[];
-const DIRS=['baixo','esquerda','direita','cima'];
-function readCharOpts(){return{skin:$('#cSkin').value,hair:$('#cHair').value,shirt:$('#cShirt').value,pants:$('#cPants').value,shoes:$('#cShoes').value,gem:$('#cGem').value,hairStyle:$('#sHair').value,eyes:$('#sEyes').value,weapon:$('#sWeapon').value}}
-function writeCharOpts(o){$('#cSkin').value=o.skin;$('#cHair').value=o.hair;$('#cShirt').value=o.shirt;$('#cPants').value=o.pants;$('#cShoes').value=o.shoes;$('#cGem').value=o.gem;$('#sHair').value=o.hairStyle;$('#sEyes').value=o.eyes;$('#sWeapon').value=o.weapon}
-
-function buildAsset(t,seed,charOpts){
-  if(t==='personagem'){const o=charOpts||randomChar(seed);
-    return{type:t,w:32,h:32,rows:DIRS.map(d=>({name:'andar_'+d,frames:[0,1,2,3].map(f=>drawChar(o,d,f).p)}))}}
-  if(t==='monstro'){const k=$('#sMon').value;return{type:t,w:16,h:16,rows:[{name:k+'_parado',frames:genMonster(k,seed)}]}}
-  if(t==='item'){const it=genItem($('#sItem').value,seed);return{type:t,w:16,h:16,rows:[{name:it.name+'_brilho',frames:it.frames}]}}
-  if(t==='terreno'){const k=$('#sTile').value;return{type:t,w:16,h:16,rows:[{name:k,frames:genTile(k,seed)}]}}
-  if(t==='foto'){if(!photoImg)return null;const r=photoToFrame(photoImg,+$('#pSize').value,+$('#pCols').value,$('#pBg').value==='1');return{type:t,w:r.w,h:r.h,rows:[{name:'imagem',frames:[r.p]}]}}
-}
-function setAsset(a){if(!a)return;asset=a;curRow=0;curFrame=0;undoStack=[];refreshAll()}
-function generate(){
-  const seed=$('#seed').value.trim()||'semente';
-  if(type==='personagem'){writeCharOpts(randomChar(seed))}
-  setAsset(buildAsset(type,seed,type==='personagem'?readCharOpts():null));
-  if(type!=='foto')$('#assetName').value=seed.split('-')[0];
-}
-
-/* ---------- desenho ---------- */
-function drawPix(ctx,p,w,h,s,ox=0,oy=0){for(let y=0;y<h;y++)for(let x=0;x<w;x++){const c=p[y*w+x];if(c){ctx.fillStyle=c;ctx.fillRect(ox+x*s,oy+y*s,s,s)}}}
-function checker(ctx,W,H,s){const css=getComputedStyle(document.documentElement);const a=css.getPropertyValue('--check-a').trim(),b=css.getPropertyValue('--check-b').trim();
-  for(let y=0;y*s<H;y++)for(let x=0;x*s<W;x++){ctx.fillStyle=(x+y)%2?a:b;ctx.fillRect(x*s,y*s,s,s)}}
-function tileOf(a){return a.type==='terreno'}
-function drawThumb(cv,a,frame=0,row=0){
-  const ctx=cv.getContext('2d'),fr=a.rows[row].frames[frame%a.rows[row].frames.length];
-  if(tileOf(a)){const s=Math.max(1,Math.floor(cv.width/(a.w*2)));cv.width=cv.height=a.w*2*s;checker(ctx,cv.width,cv.height,s*4);for(let j=0;j<2;j++)for(let i=0;i<2;i++)drawPix(ctx,fr,a.w,a.h,s,i*a.w*s,j*a.h*s);return}
-  const s=Math.max(1,Math.floor(cv.width/Math.max(a.w,a.h)));ctx.clearRect(0,0,cv.width,cv.height);checker(ctx,cv.width,cv.height,Math.max(4,s*2));
-  drawPix(ctx,fr,a.w,a.h,s,Math.floor((cv.width-a.w*s)/2),Math.floor((cv.height-a.h*s)/2));
-}
-
-let animT=0,animF=0;
-function tick(t){
-  const fps=+$('#fps').value;
-  if(asset&&t-animT>1000/fps){animT=t;const n=asset.rows[curRow].frames.length;animF=(animF+1)%n;const cv=$('#prev');cv.width=cv.height=224;drawThumb(cv,asset,animF,curRow)}
-  requestAnimationFrame(tick);
-}
-
-function renderSheet(){
-  const a=asset,cols=Math.max(...a.rows.map(r=>r.frames.length)),cv=$('#sheet'),s=Math.max(1,Math.min(4,Math.floor(64/a.h)));
-  cv.width=cols*a.w*s;cv.height=a.rows.length*a.h*s;const ctx=cv.getContext('2d');checker(ctx,cv.width,cv.height,s*4);
-  a.rows.forEach((r,j)=>r.frames.forEach((f,i)=>drawPix(ctx,f,a.w,a.h,s,i*a.w*s,j*a.h*s)));
-}
-function refreshAll(){
-  if(!asset)return;
-  const rs=$('#rowSel');rs.innerHTML=asset.rows.map((r,i)=>`<option value="${i}">${r.name.replace('_',' ')}</option>`).join('');rs.value=curRow;
-  const cols=Math.max(...asset.rows.map(r=>r.frames.length));
-  $('#meta').textContent=`${asset.w}×${asset.h} px · ${asset.rows.length} linha${asset.rows.length>1?'s':''} · ${cols} quadro${cols>1?'s':''}`;
-  renderSheet();renderEditor();renderJson();
-}
-
-/* ---------- variações ---------- */
-function renderVariants(){
-  const box=$('#variants');box.innerHTML='';
-  if(type==='foto'){box.innerHTML='<div class="empty" style="grid-column:1/-1">Escolha uma foto acima para ver o resultado.</div>';$('#btnMore').hidden=true;return}
-  $('#btnMore').hidden=false;
-  variantSeeds=Array.from({length:12},newSeed);
-  variantSeeds.forEach(sd=>{const bt=document.createElement('button');bt.title=sd;bt.setAttribute('aria-label','Variação '+sd);
-    const cv=document.createElement('canvas');cv.width=cv.height=64;bt.appendChild(cv);
-    drawThumb(cv,buildAsset(type,sd));
-    bt.onclick=()=>{$$('.variants button').forEach(x=>x.classList.remove('sel'));bt.classList.add('sel');$('#seed').value=sd;generate()};
-    box.appendChild(bt)});
-}
-
-/* ---------- editor ---------- */
-let tool='lapis',mirror=false,undoStack=[],cell=10,painting=false,lastPt=null;
-function frameArr(){return asset.rows[curRow].frames[curFrame]}
-function renderEditor(){
-  if(!asset)return;
-  const cv=$('#edCanvas'),avail=Math.min($('.ed-wrap').clientWidth-24||320,560);
-  cell=Math.max(4,Math.floor(avail/Math.max(asset.w,asset.h)));
-  cv.width=asset.w*cell;cv.height=asset.h*cell;const ctx=cv.getContext('2d');
-  checker(ctx,cv.width,cv.height,cell);drawPix(ctx,frameArr(),asset.w,asset.h,cell);
-  if(cell>=8){ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;ctx.beginPath();
-    for(let x=0;x<=asset.w;x++){ctx.moveTo(x*cell+.5,0);ctx.lineTo(x*cell+.5,cv.height)}for(let y=0;y<=asset.h;y++){ctx.moveTo(0,y*cell+.5);ctx.lineTo(cv.width,y*cell+.5)}ctx.stroke()}
-  renderFrames();renderSwatches();
-}
-function renderFrames(){
-  const box=$('#frames');box.innerHTML='';
-  asset.rows[curRow].frames.forEach((f,i)=>{const bt=document.createElement('button');bt.className=i===curFrame?'sel':'';bt.setAttribute('aria-label','Quadro '+(i+1));
-    const cv=document.createElement('canvas');cv.width=cv.height=54;bt.appendChild(cv);const sp=document.createElement('span');sp.textContent=i+1;bt.appendChild(sp);
-    const ctx=cv.getContext('2d'),s=Math.max(1,Math.floor(54/Math.max(asset.w,asset.h)));drawPix(ctx,f,asset.w,asset.h,s,Math.floor((54-asset.w*s)/2),Math.floor((54-asset.h*s)/2));
-    bt.onclick=()=>{curFrame=i;renderEditor()};box.appendChild(bt)});
-}
-function renderSwatches(){
-  const set=new Set();asset.rows.forEach(r=>r.frames.forEach(f=>f.forEach(c=>c&&set.add(c))));
-  const cols=[...set].slice(0,40),box=$('#swatches');box.innerHTML='';
-  cols.forEach(c=>{const b=document.createElement('button');b.style.background=c;b.title=c;b.setAttribute('aria-label','Cor '+c);if(c===$('#edColor').value)b.className='sel';
-    b.onclick=()=>{$('#edColor').value=c;if(tool!=='lapis'&&tool!=='balde')setTool('lapis');renderSwatches()};box.appendChild(b)});
-}
-function setTool(t){tool=t;$$('#tools [data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t))}
-function pushUndo(){undoStack.push({row:curRow,frame:curFrame,data:frameArr().slice()});if(undoStack.length>60)undoStack.shift()}
-function paintAt(x,y){
-  const w=asset.w,h=asset.h,f=frameArr();if(x<0||y<0||x>=w||y>=h)return;
-  const col=tool==='borracha'?null:$('#edColor').value;
-  if(tool==='conta'){const c=f[y*w+x];if(c){$('#edColor').value=c;setTool('lapis');renderSwatches()}return}
-  if(tool==='balde'){flood(f,w,h,x,y,col);if(mirror)flood(f,w,h,w-1-x,y,col);return}
-  f[y*w+x]=col;if(mirror)f[y*w+(w-1-x)]=col;
-}
-function flood(f,w,h,x,y,col){const t=f[y*w+x];if(t===col)return;const st=[[x,y]];while(st.length){const[a,b]=st.pop();if(a<0||b<0||a>=w||b>=h||f[b*w+a]!==t)continue;f[b*w+a]=col;st.push([a+1,b],[a-1,b],[a,b+1],[a,b-1])}}
-function ptFromEvent(e){const cv=$('#edCanvas'),r=cv.getBoundingClientRect();return[Math.floor((e.clientX-r.left)/r.width*asset.w),Math.floor((e.clientY-r.top)/r.height*asset.h)]}
-function lineTo(a,b){let[x0,y0]=a;const[x1,y1]=b,dx=Math.abs(x1-x0),dy=-Math.abs(y1-y0),sx=x0<x1?1:-1,sy=y0<y1?1:-1;let err=dx+dy;
-  for(;;){paintAt(x0,y0);if(x0===x1&&y0===y1)break;const e2=2*err;if(e2>=dy){err+=dy;x0+=sx}if(e2<=dx){err+=dx;y0+=sy}}}
-const ed=$('#edCanvas');
-ed.addEventListener('pointerdown',e=>{if(!asset)return;e.preventDefault();ed.setPointerCapture(e.pointerId);pushUndo();painting=true;lastPt=ptFromEvent(e);paintAt(...lastPt);quickRedraw()});
-ed.addEventListener('pointermove',e=>{if(!painting||tool==='balde'||tool==='conta')return;const p=ptFromEvent(e);lineTo(lastPt,p);lastPt=p;quickRedraw()});
-const endPaint=()=>{if(!painting)return;painting=false;renderSheet();renderFrames();renderSwatches();renderJson()};
-ed.addEventListener('pointerup',endPaint);ed.addEventListener('pointercancel',endPaint);
-function quickRedraw(){const cv=$('#edCanvas'),ctx=cv.getContext('2d');checker(ctx,cv.width,cv.height,cell);drawPix(ctx,frameArr(),asset.w,asset.h,cell);
-  if(cell>=8){ctx.strokeStyle='rgba(255,255,255,.07)';ctx.beginPath();for(let x=0;x<=asset.w;x++){ctx.moveTo(x*cell+.5,0);ctx.lineTo(x*cell+.5,cv.height)}for(let y=0;y<=asset.h;y++){ctx.moveTo(0,y*cell+.5);ctx.lineTo(cv.width,y*cell+.5)}ctx.stroke()}}
-
-$$('#tools [data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
-$('#btnMirror').onclick=()=>{mirror=!mirror;$('#btnMirror').setAttribute('aria-pressed',mirror)};
-$('#btnUndo').onclick=()=>{const u=undoStack.pop();if(!u||!asset.rows[u.row]||!asset.rows[u.row].frames[u.frame])return;asset.rows[u.row].frames[u.frame]=u.data;curRow=u.row;curFrame=u.frame;$('#rowSel').value=curRow;refreshAll()};
-$('#btnDup').onclick=()=>{const fr=asset.rows[curRow].frames;fr.splice(curFrame+1,0,frameArr().slice());curFrame++;refreshAll();toast('Quadro duplicado')};
-$('#btnDel').onclick=()=>{const fr=asset.rows[curRow].frames;if(fr.length<2){toast('A animação precisa de pelo menos 1 quadro');return}fr.splice(curFrame,1);curFrame=Math.max(0,curFrame-1);refreshAll();toast('Quadro apagado')};
-$('#btnFlip').onclick=()=>{pushUndo();asset.rows[curRow].frames[curFrame]=new Buf(asset.w,asset.h,frameArr()).flipX().p;refreshAll()};
-
-/* ---------- exportar ---------- */
-function sheetCanvas(scale,onlyFrame){
-  const a=asset,cv=document.createElement('canvas'),ctx=cv.getContext('2d');
-  if(onlyFrame){cv.width=a.w*scale;cv.height=a.h*scale;drawPix(ctx,frameArr(),a.w,a.h,scale);return cv}
-  const cols=Math.max(...a.rows.map(r=>r.frames.length));cv.width=cols*a.w*scale;cv.height=a.rows.length*a.h*scale;
-  a.rows.forEach((r,j)=>r.frames.forEach((f,i)=>drawPix(ctx,f,a.w,a.h,scale,i*a.w*scale,j*a.h*scale)));return cv;
-}
-function fileBase(){return($('#assetName').value.trim()||'sprite').replace(/[^\w-]+/g,'_')}
-function exportPng(onlyFrame){
-  const sc=+$('#exScale').value,cv=sheetCanvas(sc,onlyFrame),url=cv.toDataURL('image/png');
-  $('#outImg').src=url;$('#outImg').style.width=Math.min(cv.width,640)+'px';$('#out').hidden=false;
-  const name=fileBase()+(onlyFrame?'_quadro':'_sheet')+(sc>1?'_'+sc+'x':'')+'.png';
-  $('#dl').href=url;$('#dl').download=name;$('#dl').textContent='Baixar '+name;lastExport={cv,name};
-  renderJson();
-}
-// Dentro do Claude, downloads passam pela capacidade "downloads"; em outros sites o link normal funciona.
-let dlApi=null,lastExport=null;
-if(window.claude&&window.claude.use)window.claude.use('downloads').then(d=>{dlApi=d}).catch(()=>{});
-$('#dl').addEventListener('click',e=>{if(!dlApi||!lastExport)return;e.preventDefault();
-  lastExport.cv.toBlob(blob=>{dlApi.save({filename:lastExport.name,data:blob}).then(()=>toast('Imagem salva')).catch(err=>{if(err&&err.code!=='declined')toast('Não deu para baixar aqui: toque e segure a imagem')})},'image/png')});
-function renderJson(){
-  if(!asset)return;const sc=+$('#exScale').value;
-  $('#json').value=JSON.stringify({nome:fileBase(),arquivo:fileBase()+'_sheet'+(sc>1?'_'+sc+'x':'')+'.png',larguraQuadro:asset.w*sc,alturaQuadro:asset.h*sc,escala:sc,fps:+$('#fps').value,
-    animacoes:asset.rows.map((r,i)=>({nome:r.name,linha:i,quadros:r.frames.length}))},null,2);
-}
-$('#btnSheet').onclick=()=>exportPng(false);
-$('#btnFrame').onclick=()=>exportPng(true);
-$('#exScale').onchange=renderJson;
-$('#btnCopy').onclick=()=>{const t=$('#json');navigator.clipboard.writeText(t.value).then(()=>toast('Dados copiados')).catch(()=>{t.focus();t.select();toast('Texto selecionado: copie pelo menu')})};
-
-/* ---------- galeria ---------- */
-const GKEY='sprites-n-ai.galeria';
-function loadGallery(){try{return JSON.parse(localStorage.getItem(GKEY)||'[]')}catch(e){return[]}}
-function saveGallery(g){try{localStorage.setItem(GKEY,JSON.stringify(g));return true}catch(e){toast('Não foi possível salvar: memória do navegador cheia ou bloqueada');return false}}
-$('#btnSave').onclick=()=>{const g=loadGallery();g.unshift({id:Date.now(),nome:$('#assetName').value||'sprite',fps:+$('#fps').value,asset:JSON.parse(JSON.stringify(asset))});if(saveGallery(g))toast('Salvo na Galeria');renderGallery()};
-function renderGallery(){
-  const g=loadGallery(),box=$('#gallery');box.innerHTML='';
-  if(!g.length){box.innerHTML='<div class="empty" style="grid-column:1/-1">Nada salvo ainda. Gere ou desenhe um asset e toque em <b>Salvar na Galeria</b> na aba Exportar.</div>';return}
-  g.forEach(it=>{const c=document.createElement('div');c.className='card';
-    const cv=document.createElement('canvas');cv.width=cv.height=96;drawThumb(cv,it.asset);
-    const nm=document.createElement('div');nm.className='nm';nm.textContent=it.nome;
-    const row=document.createElement('div');row.className='row';
-    const op=document.createElement('button');op.className='btn';op.textContent='Abrir';
-    op.onclick=()=>{type=it.asset.type;$('#assetName').value=it.nome;$('#fps').value=it.fps||6;$('#fpsVal').textContent=$('#fps').value;setAsset(JSON.parse(JSON.stringify(it.asset)));showTab('editar');toast('Aberto no editor')};
-    const del=document.createElement('button');del.className='btn danger';del.textContent='Apagar';
-    del.onclick=()=>{if(del.dataset.ok){saveGallery(loadGallery().filter(x=>x.id!==it.id));renderGallery()}else{del.dataset.ok=1;del.textContent='Confirmar'}};
-    row.append(op,del);c.append(cv,nm,row);box.appendChild(c)});
-}
-
-/* ---------- interface ---------- */
-let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,1800)}
-function showTab(name){$$('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===name));
-  ['gerar','editar','exportar','galeria'].forEach(n=>$('#tab-'+n).hidden=n!==name);
-  if(name==='editar')renderEditor();if(name==='galeria')renderGallery();if(name==='exportar')renderJson();
-  try{localStorage.setItem('sprites-n-ai.aba',name)}catch(e){}}
-$$('nav.tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
-$$('#typeSeg button').forEach(b=>b.onclick=()=>{type=b.dataset.type;$$('#typeSeg button').forEach(x=>x.setAttribute('aria-pressed',x===b));
-  ['personagem','monstro','item','terreno','foto'].forEach(t=>$('#opts-'+t).hidden=t!==type);
-  if(type!=='foto'){$('#seed').value=newSeed();generate()}else if(photoImg)setAsset(buildAsset('foto'));
-  renderVariants()});
-$('#btnNew').onclick=()=>{if(type==='foto'){if(photoImg)setAsset(buildAsset('foto'));else toast('Escolha uma foto primeiro');return}$('#seed').value=newSeed();generate()};
-$('#btnMore').onclick=renderVariants;
-$('#seed').onchange=generate;
-['#cSkin','#cHair','#cShirt','#cPants','#cShoes','#cGem','#sHair','#sEyes','#sWeapon'].forEach(id=>$(id).addEventListener('input',()=>setAsset(buildAsset('personagem','',readCharOpts()))));
-['#sMon','#sItem','#sTile'].forEach(id=>$(id).onchange=()=>{generate();renderVariants()});
-['#pSize','#pCols','#pBg'].forEach(id=>$(id).onchange=()=>{if(photoImg)setAsset(buildAsset('foto'))});
-$('#photo').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{photoImg=im;$('#assetName').value=f.name.replace(/\.[^.]+$/,'');setAsset(buildAsset('foto'));$('#variants').innerHTML='<div class="empty" style="grid-column:1/-1">Pronto! Mude o tamanho e as cores acima, depois retoque na aba Editar.</div>'};im.src=rd.result};rd.readAsDataURL(f)};
-$('#rowSel').onchange=e=>{curRow=+e.target.value;curFrame=0;animF=0;renderEditor()};
-$('#fps').oninput=e=>{$('#fpsVal').textContent=e.target.value;renderJson()};
-$('#assetName').oninput=renderJson;
-window.addEventListener('resize',()=>{if(!$('#tab-editar').hidden)renderEditor()});
-
-/* logo */
-(()=>{const cv=$('#logo'),o=randomChar('logo');const b=drawChar({...o,hairStyle:'espetado',eyes:'grande',weapon:'nenhum',hair:'#ffb547'},'baixo',0);const ctx=cv.getContext('2d');cv.width=cv.height=32;drawPix(ctx,b.p,32,32,1)})();
-
-/* início com um exemplo pronto */
-generate();renderVariants();requestAnimationFrame(tick);
-try{const t=localStorage.getItem('sprites-n-ai.aba');if(t&&t!=='gerar')showTab(t)}catch(e){}
+(function(){const cv=document.getElementById('logo'),p=aleatorioPers('logo','guerreiro');Object.assign(p,{raca:'humano',pele:'#ecbd96',cabelo:'espetado',corCabelo:'#ffb547',olhos:'grande',arma:'nenhuma',escudo:'nenhum',chapeu:'nenhum',capa:'nenhuma',corRoupa:'#5a3fa0'});
+  desenharPixels(cv.getContext('2d'),desenharPers(p,'baixo','parado',0),32,32,1)})();
 </script>
 </body>
 </html>
