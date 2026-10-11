@@ -350,6 +350,7 @@ window.addEventListener('resize',()=>renderEditor());
   montarCamposPers();mostrarCenario();
   chips('#iaPersEx','#iaPersTxt',['Cavaleira de armadura dourada','Mago esqueleto de chapéu roxo','Orc bárbaro com elmo viking','Rainha elfa de vestido azul']);
   chips('#iaLivreEx','#iaLivreTxt',['Baú de tesouro com moedas','Dragãozinho vermelho fofo','Espada lendária de fogo','Castelinho de pedra']);
+  document.body.dataset.aba='criar';
   $('#semente').value='heroi-7';gerar();renderVariantes();requestAnimationFrame(tick);
   iniciarIA(estadoIA);estadoIA();
   const aba=ARMAZ.get('aba','criar');if(aba!=='criar'&&$('#tab-'+aba))mostrarAba(aba);
