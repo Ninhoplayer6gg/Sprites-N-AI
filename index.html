@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sprites-N-AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: oficina de pixel art em uma coluna; palco do sprite sempre no topo, abas fixas embaixo como app de celular */
+:root{
+  --bg:#1a1730; --panel:#24203f; --panel-2:#2e2950; --line:#3f3870;
+  --fg:#efeaff; --muted:#aaa2d4; --accent:#ffb547; --accent-ink:#2a1a00; --ok:#7fe0a0; --danger:#ff7a88;
+  --check-a:#2b2748; --check-b:#332e55;
+  --f-display:"Pixelify Sans","Courier New",monospace;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg)}
+body{margin:0;font-family:var(--f-body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:0 calc(88px + env(safe-area-inset-bottom,0px))}
+[hidden]{display:none!important}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;align-items:center;gap:10px;padding-block:12px 4px}
+header h1{font-family:var(--f-display);font-weight:700;font-size:1.5rem;margin:0;letter-spacing:.02em}
+header h1 span{color:var(--accent)}
+header .sub{color:var(--muted);font-size:.8rem;margin-left:auto;text-align:right;max-width:15ch}
+.logo{width:32px;height:32px;image-rendering:pixelated}
+h2{font-family:var(--f-display);font-weight:500;font-size:1.2rem;margin:0;text-wrap:balance}
+.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.hint{color:var(--muted);font-size:.86rem;margin:0;max-width:65ch}
+.stage{z-index:4;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px;display:grid;grid-template-columns:minmax(0,1fr);gap:8px;box-shadow:0 8px 20px -14px #000}
+body[data-aba="criar"] .stage,body[data-aba="ia"] .stage{position:sticky;top:env(safe-area-inset-top,0px)}
+.stage-top{display:flex;gap:12px;align-items:flex-start}
+.prev-col{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;width:clamp(116px,34vw,192px)}
+.prev-col canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;border-radius:4px;display:block;max-width:100%}
+.fundos{display:flex;gap:4px}
+.fundos button{flex:1;height:18px;border-radius:3px;border:1px solid var(--line);cursor:pointer;padding:0}
+.fundos button[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:1px}
+.stage-info{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:6px}
+.stage-info select,.stage-info input[type=text]{min-height:36px;padding:6px 10px}
+.meta{font-family:var(--f-mono);font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.sheet-scroll{overflow-x:auto;background:var(--panel-2);border-radius:4px;padding:4px;max-height:84px;overflow-y:auto}
+.sheet-scroll canvas{image-rendering:pixelated;display:block;cursor:pointer}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.grow{flex:1 1 150px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button,.btn,.tools button{font:inherit;font-size:.9rem;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:8px 12px;cursor:pointer;min-height:40px}
+.seg button[aria-pressed="true"],.tools button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;font-family:var(--f-display);font-size:1.05rem}
+.btn.perigo,.tools .perigo{color:var(--danger)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:active,.seg button:active,.tools button:active{transform:translateY(1px)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{display:flex;flex-direction:column;gap:14px}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field.chk{justify-content:flex-end}
+.field.chk label{display:flex;gap:8px;align-items:center;min-height:40px;font-size:.9rem}
+.field.chk input{width:20px;height:20px;accent-color:var(--accent)}
+select,input[type=text],textarea{font:inherit;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:8px 10px;min-height:40px;width:100%}
+textarea{resize:vertical;font-size:.95rem}
+input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-radius:5px;background:var(--panel-2);padding:3px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=file]{font:inherit;color:var(--muted);max-width:100%}
+details.grupo,details.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:0 12px}
+details.grupo summary,details.card summary{cursor:pointer;font-family:var(--f-display);font-size:1.02rem;padding:10px 0}
+details.grupo[open],details.card[open]{padding-bottom:12px}
+details.card>*:not(summary){margin-top:10px}
+.pers-grupos{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.82rem;color:var(--fg);background:transparent;border:1px dashed var(--line);border-radius:999px;padding:6px 10px;cursor:pointer;text-align:left}
+.chips label{display:flex;gap:6px;align-items:center;font-size:.9rem;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.chips input{accent-color:var(--accent);width:18px;height:18px}
+.variants{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.variants button{padding:3px;background:var(--panel-2);border:1px solid var(--line);border-radius:5px;cursor:pointer;aspect-ratio:1;max-width:100%}
+.variants button.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.variants canvas{width:100%;height:100%;image-rendering:pixelated;display:block}
+.vazio{grid-column:1/-1;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:18px;text-align:center}
+.ia-status{border-radius:6px;padding:10px 12px;font-size:.9rem;border:1px solid var(--line);background:var(--panel)}
+.ia-status.ok{border-color:#3d7a5a;color:var(--ok)}
+.ia-status.off{color:var(--muted)}
+.ia-out{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:6px;padding:10px 12px;font-size:.92rem}
+.ia-out.erro{border-left-color:var(--danger)}
+.ia-out.carregando::after{content:"";display:inline-block;width:10px;height:10px;margin-left:8px;background:var(--accent);animation:pisca .8s steps(2) infinite;vertical-align:middle}
+@keyframes pisca{50%{opacity:0}}
+#iaFotoPrev{max-width:160px;border-radius:6px;border:1px solid var(--line)}
+.tools{display:flex;flex-wrap:wrap;gap:6px}
+.tools button{min-width:44px;padding:8px 10px;font-size:.85rem}
+.tools.rolar{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.tools.rolar button{flex:0 0 auto}
+.ed-wrap{display:flex;justify-content:center;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;max-height:70vh}
+#edCanvas{touch-action:none;image-rendering:pixelated;flex:0 0 auto}
+.swatches{display:flex;flex-wrap:wrap;gap:5px}
+.swatches button{width:30px;height:30px;border-radius:4px;border:2px solid var(--line);cursor:pointer;padding:0}
+.swatches button.sel{border-color:var(--fg);box-shadow:0 0 0 2px var(--accent)}
+.frames{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.frames button{flex:0 0 auto;width:62px;height:62px;padding:3px;background:var(--panel-2);border:1px solid var(--line);border-radius:5px;cursor:pointer;position:relative}
+.frames button.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.frames button span{position:absolute;right:4px;bottom:2px;font-family:var(--f-mono);font-size:.65rem;color:var(--muted)}
+.frames canvas{width:100%;height:100%;image-rendering:pixelated}
+.out{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.out img{image-rendering:pixelated;max-width:100%;background:repeating-conic-gradient(var(--check-a) 0 25%,var(--check-b) 0 50%) 0 0/16px 16px;border-radius:4px}
+#exJson{min-height:140px;font-family:var(--f-mono);font-size:.76rem}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;max-width:100%;border-radius:4px}
+.card .nm{font-size:.88rem;overflow-wrap:anywhere}
+.card .row button{flex:1;min-height:34px;padding:4px 8px;font-size:.8rem}
+.passos{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:.88rem;max-width:65ch}
+.passos b{color:var(--fg)}
+code{font-family:var(--f-mono);font-size:.85em;color:var(--fg)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--panel);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs button{font-family:var(--f-display);font-size:.95rem;background:none;border:0;color:var(--muted);padding:12px 2px 14px;cursor:pointer;border-top:3px solid transparent}
+nav.tabs button[aria-selected="true"]{color:var(--accent);border-top-color:var(--accent)}
+nav.tabs button.ia{color:var(--fg)}
+nav.tabs button.ia[aria-selected="true"]{color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:5px;font-weight:700;font-size:.9rem;z-index:20;max-width:calc(100vw - 32px);text-align:center}
+@media (max-width:420px){.prev-col{width:112px}header .sub{display:none}.stage .meta{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body data-aba="criar">
+<div class="wrap">
+  <header>
+    <canvas class="logo" id="logo" width="32" height="32"></canvas>
+    <h1>Sprites<span>-N-</span>AI</h1>
+    <div class="sub">personagens, monstros, itens e cenários</div>
+  </header>
+
+  <section class="stage" aria-label="Asset atual">
+    <div class="stage-top">
+      <div class="prev-col">
+        <canvas id="prev" width="192" height="192" aria-label="Prévia animada"></canvas>
+        <div class="fundos" id="fundos" aria-label="Cor do fundo">
+          <button type="button" data-fundo="xadrez" title="Xadrez" style="background:repeating-conic-gradient(#555 0 25%,#999 0 50%) 0 0/8px 8px"></button>
+          <button type="button" data-fundo="escuro" title="Escuro" style="background:#14111f"></button>
+          <button type="button" data-fundo="claro" title="Claro" style="background:#ece8f4"></button>
+          <button type="button" data-fundo="grama" title="Grama" style="background:#5a8a3a"></button>
+          <button type="button" data-fundo="azul" title="Azul" style="background:#3a6ab0"></button>
+        </div>
+      </div>
+      <div class="stage-info">
+        <div class="field"><label class="label" for="nome">Nome</label><input type="text" id="nome" value="heroi"></div>
+        <div class="field"><label class="label" for="animSel">Animação</label><select id="animSel"></select></div>
+        <div class="field"><label class="label" for="fps">Velocidade <span id="fpsVal">8 fps</span></label><input type="range" id="fps" min="1" max="20" value="8"></div>
+        <div class="meta" id="meta"></div>
+      </div>
+    </div>
+    <div class="sheet-scroll"><canvas id="sheet" aria-label="Spritesheet: toque para escolher a animação"></canvas></div>
+  </section>
+
+  <!-- CRIAR -->
+  <section class="panel" id="tab-criar">
+    <div class="field">
+      <span class="label">O que criar</span>
+      <div class="seg" id="tipoSeg">
+        <button type="button" data-tipo="personagem" aria-pressed="true">Personagem</button>
+        <button type="button" data-tipo="monstro" aria-pressed="false">Monstro</button>
+        <button type="button" data-tipo="item" aria-pressed="false">Item</button>
+        <button type="button" data-tipo="cenario" aria-pressed="false">Cenário</button>
+        <button type="button" data-tipo="foto" aria-pressed="false">Foto → Pixel</button>
+      </div>
+    </div>
+    <div class="row">
+      <button type="button" class="btn primary" id="btnNovo">Gerar novo</button>
+      <div class="field grow"><label class="label" for="semente">Semente (repete o mesmo resultado)</label><input type="text" id="semente"></div>
+    </div>
+
+    <div id="op-personagem" class="panel">
+      <div class="fields"><div class="field"><label class="label" for="classe">Classe</label><select id="classe"></select></div></div>
+      <div class="pers-grupos" id="persCampos"></div>
+      <div class="field"><span class="label">Animações na spritesheet</span>
+        <div class="chips" id="persAnims">
+          <label><input type="checkbox" value="parado" checked> Parado</label>
+          <label><input type="checkbox" value="andar" checked> Andar</label>
+          <label><input type="checkbox" value="atacar" checked> Atacar</label>
+          <label><input type="checkbox" value="dano" checked> Dano</label>
+        </div>
+      </div>
+      <p class="hint">Cada animação vem nas 4 direções: baixo, esquerda, direita e cima.</p>
+    </div>
+    <div id="op-monstro" class="fields" hidden>
+      <div class="field"><label class="label" for="monTipo">Monstro</label><select id="monTipo"></select></div>
+      <div class="field"><label class="label" for="monCont">Contorno</label><select id="monCont"></select></div>
+      <div class="field chk"><label><input type="checkbox" id="monSombra"> Sombra no chão</label></div>
+    </div>
+    <div id="op-item" class="panel" hidden>
+      <div class="fields">
+        <div class="field"><label class="label" for="itemTipo">Item</label><select id="itemTipo"></select></div>
+        <div class="field"><label class="label" for="itemTier">Material</label><select id="itemTier"></select></div>
+      </div>
+      <button type="button" class="btn" id="btnPacote">Pacote com 16 itens diferentes</button>
+    </div>
+    <div id="op-cenario" class="panel" hidden>
+      <div class="seg" id="cenSeg">
+        <button type="button" data-cen="piso" aria-pressed="true">Piso</button>
+        <button type="button" data-cen="tileset" aria-pressed="false">Tileset com bordas</button>
+        <button type="button" data-cen="decor" aria-pressed="false">Decoração</button>
+      </div>
+      <div class="fields">
+        <div class="field" id="f-piso"><label class="label" for="cenPiso">Piso 16×16</label><select id="cenPiso"></select></div>
+        <div class="field" id="f-tsA" hidden><label class="label" for="cenA">Terreno de cima</label><select id="cenA"></select></div>
+        <div class="field" id="f-tsB" hidden><label class="label" for="cenB">Terreno de baixo</label><select id="cenB"></select></div>
+        <div class="field" id="f-decor" hidden><label class="label" for="cenDecor">Decoração</label><select id="cenDecor"></select></div>
+      </div>
+      <p class="hint" id="cenDica"></p>
+    </div>
+    <div id="op-foto" class="panel" hidden>
+      <p class="hint">Escolha uma foto ou um desenho seu feito no papel. A ferramenta reduz a imagem para poucos pixels e poucas cores, no estilo pixel art.</p>
+      <input type="file" id="fArquivo" accept="image/*">
+      <div class="fields">
+        <div class="field"><label class="label" for="fSize">Tamanho</label><select id="fSize"><option>16</option><option selected>32</option><option>48</option><option>64</option></select></div>
+        <div class="field"><label class="label" for="fCores">Cores</label><select id="fCores"><option>4</option><option selected>8</option><option>12</option><option>16</option><option>24</option></select></div>
+        <div class="field"><label class="label" for="fFundo">Fundo</label><select id="fFundo"><option value="1">Remover fundo</option><option value="0">Manter fundo</option></select></div>
+        <div class="field chk"><label><input type="checkbox" id="fContorno"> Contorno escuro</label></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="label">Variações: toque para escolher</span>
+      <div class="variants" id="variantes"></div>
+      <button type="button" class="btn" id="btnMais" style="align-self:flex-start">Mais variações</button>
+    </div>
+  </section>
+
+  <!-- IA -->
+  <section class="panel" id="tab-ia" hidden>
+    <div class="ia-status" id="iaStatus">Verificando se a IA está disponível…</div>
+    <div class="seg" id="iaSeg">
+      <button type="button" data-ia="pers" aria-pressed="true">Personagem</button>
+      <button type="button" data-ia="livre" aria-pressed="false">Desenho livre</button>
+      <button type="button" data-ia="foto" aria-pressed="false">Minha foto</button>
+    </div>
+    <div id="ia-pers" class="panel">
+      <div class="field"><label class="label" for="iaPersTxt">Descreva o personagem</label>
+        <textarea id="iaPersTxt" rows="3" placeholder="Ex.: uma maga elfa de cabelo azul, capa roxa e cajado de gelo"></textarea></div>
+      <button type="button" class="btn primary ia-btn" id="iaPersBtn">Criar com IA</button>
+      <div class="field"><span class="label">Ideias</span><div class="chips" id="iaPersEx"></div></div>
+      <p class="hint">A IA escolhe raça, roupa, cabelo, cores e arma. O personagem já sai com todas as animações nas 4 direções.</p>
+    </div>
+    <div id="ia-livre" class="panel" hidden>
+      <div class="field"><label class="label" for="iaLivreTxt">O que a IA deve desenhar?</label>
+        <textarea id="iaLivreTxt" rows="3" placeholder="Ex.: um baú de tesouro aberto cheio de moedas de ouro"></textarea></div>
+      <div class="field"><span class="label">Ideias</span><div class="chips" id="iaLivreEx"></div></div>
+      <div class="fields">
+        <div class="field"><label class="label" for="iaTam">Tamanho</label><select id="iaTam"><option value="16">16×16</option><option value="24">24×24</option><option value="32" selected>32×32</option></select></div>
+        <div class="field"><label class="label" for="iaQual">Capricho</label><select id="iaQual"><option value="0">Normal</option><option value="1">Caprichado (mais lento)</option></select></div>
+      </div>
+      <button type="button" class="btn primary ia-btn" id="iaLivreBtn">Desenhar com IA</button>
+      <p class="hint">A IA desenha pixel por pixel e você vê o desenho aparecer na prévia lá em cima.</p>
+    </div>
+    <div id="ia-foto" class="panel" hidden>
+      <p class="hint">Mande uma foto sua, de um amigo, do seu pet ou de um desenho. A IA cria um personagem inspirado nela, com todas as animações.</p>
+      <input type="file" id="iaFoto" accept="image/*">
+      <img id="iaFotoPrev" alt="Foto escolhida" hidden>
+      <p class="hint" id="iaFotoAviso" hidden>Mandar fotos para a IA não está disponível aqui.</p>
+      <button type="button" class="btn primary" id="iaFotoBtn" disabled>Transformar em personagem</button>
+    </div>
+    <div class="ia-out" id="iaOut" hidden></div>
+    <button type="button" class="btn ia-parar" hidden style="align-self:flex-start">Parar</button>
+  </section>
+
+  <!-- EDITAR -->
+  <section class="panel" id="tab-editar" hidden>
+    <div class="tools rolar" id="ferramentas">
+      <button type="button" data-f="lapis" aria-pressed="true">Lápis</button>
+      <button type="button" data-f="borracha" aria-pressed="false">Borracha</button>
+      <button type="button" data-f="balde" aria-pressed="false">Balde</button>
+      <button type="button" data-f="conta" aria-pressed="false">Conta-gotas</button>
+      <button type="button" data-f="linha" aria-pressed="false">Linha</button>
+      <button type="button" data-f="retangulo" aria-pressed="false">Retângulo</button>
+      <button type="button" data-f="clarear" aria-pressed="false">Clarear</button>
+      <button type="button" data-f="escurecer" aria-pressed="false">Escurecer</button>
+      <button type="button" data-f="mover" aria-pressed="false">Mover</button>
+    </div>
+    <div class="tools rolar">
+      <button type="button" id="edEspelho" aria-pressed="false">Espelho</button>
+      <button type="button" id="edGrade" aria-pressed="true">Grade</button>
+      <button type="button" id="edFantasma" aria-pressed="false">Ver quadro anterior</button>
+      <button type="button" id="edDesfazer">Desfazer</button>
+      <button type="button" id="edRefazer">Refazer</button>
+      <button type="button" id="edContorno">Contorno</button>
+      <button type="button" id="edLimpar" class="perigo">Limpar</button>
+      <button type="button" id="edZoomMenos" aria-label="Diminuir zoom">−</button>
+      <button type="button" id="edZoomMais" aria-label="Aumentar zoom">+</button>
+    </div>
+    <div class="row">
+      <div class="field" style="width:84px"><label class="label" for="edCor">Cor</label><input type="color" id="edCor" value="#ffb547"></div>
+      <div class="field grow"><label class="label" for="edPaleta">Paleta</label><select id="edPaleta"></select></div>
+    </div>
+    <div class="swatches" id="cores"></div>
+    <div class="ed-wrap" id="edWrap"><canvas id="edCanvas"></canvas></div>
+    <div class="field">
+      <span class="label">Quadros desta animação</span>
+      <div class="frames" id="quadros"></div>
+      <div class="tools rolar">
+        <button type="button" id="qNovo">Novo</button>
+        <button type="button" id="qDup">Duplicar</button>
+        <button type="button" id="qEsq">◀ Mover</button>
+        <button type="button" id="qDir">Mover ▶</button>
+        <button type="button" id="qEsp">Espelhar</button>
+        <button type="button" id="qDel" class="perigo">Apagar</button>
+      </div>
+    </div>
+    <details class="card">
+      <summary>Pedir para a IA mudar este quadro</summary>
+      <textarea id="edIaTxt" rows="2" placeholder="Ex.: troque a espada por um machado de fogo"></textarea>
+      <div class="row"><button type="button" class="btn primary" id="edIaBtn">Pedir à IA</button><button type="button" class="btn" id="edIaParar" hidden>Parar</button></div>
+      <p class="hint" id="edIaMsg">A IA redesenha só o quadro que está aberto no editor.</p>
+    </details>
+    <details class="card">
+      <summary>Começar um desenho em branco</summary>
+      <div class="row">
+        <div class="field" style="width:130px"><label class="label" for="edTam">Tamanho</label><select id="edTam"><option>16</option><option>24</option><option selected>32</option><option>48</option><option>64</option></select></div>
+        <button type="button" class="btn" id="edBranco">Criar tela em branco</button>
+      </div>
+    </details>
+    <p class="hint">Desenhe com o dedo. Espelho pinta dos dois lados ao mesmo tempo. Clarear e Escurecer mudam o tom dos pixels sem trocar a cor. Gerar um asset novo apaga as edições que não foram salvas na Galeria.</p>
+  </section>
+
+  <!-- EXPORTAR -->
+  <section class="panel" id="tab-exportar" hidden>
+    <div class="fields">
+      <div class="field"><label class="label" for="exEscala">Aumentar pixels</label>
+        <select id="exEscala"><option value="1">1× (original)</option><option value="2">2×</option><option value="4" selected>4×</option><option value="8">8×</option><option value="16">16×</option></select></div>
+      <div class="field"><label class="label" for="exMargem">Espaço entre quadros</label>
+        <select id="exMargem"><option value="0">Nenhum</option><option value="1">1 pixel</option><option value="2">2 pixels</option></select></div>
+    </div>
+    <div class="row">
+      <button type="button" class="btn primary" id="exFolha">Spritesheet PNG</button>
+      <button type="button" class="btn" id="exGif">GIF animado</button>
+      <button type="button" class="btn" id="exQuadro">Só o quadro atual</button>
+    </div>
+    <div class="out" id="exOut" hidden>
+      <img id="exImg" alt="Imagem exportada">
+      <p class="hint">No celular: toque e segure a imagem e escolha <b>Salvar imagem</b>. Ou use o botão abaixo.</p>
+      <button type="button" class="btn" id="exBaixar">Baixar</button>
+    </div>
+    <div class="field">
+      <span class="label">Dados para a engine</span>
+      <textarea id="exJson" readonly></textarea>
+      <div class="row">
+        <button type="button" class="btn" id="exCopiar">Copiar dados</button>
+        <button type="button" class="btn" id="exJsonBaixar">Baixar .json</button>
+        <button type="button" class="btn" id="exSalvar">Salvar na Galeria</button>
+      </div>
+    </div>
+    <details class="card">
+      <summary>Como usar no seu jogo</summary>
+      <ol class="passos">
+        <li>Exporte em <b>1×</b>: é o tamanho real dos pixels. Aumente depois, na engine.</li>
+        <li><b>Godot</b>: arraste o PNG para o projeto e crie um <code>AnimatedSprite2D</code>. Em <i>SpriteFrames</i>, use <b>Adicionar quadros de uma spritesheet</b> com as colunas e linhas dos dados acima. Deixe o filtro de textura em <b>Nearest</b>.</li>
+        <li><b>Unity</b>: importe o PNG, mude <i>Sprite Mode</i> para <b>Multiple</b> e <i>Filter Mode</i> para <b>Point</b>. No <i>Sprite Editor</i>, corte por <b>Grid By Cell Size</b> com a largura e a altura do quadro.</li>
+        <li><b>GameMaker</b> e <b>Construct</b>: use a opção de importar uma tira ou spritesheet e informe colunas, linhas e o tamanho do quadro.</li>
+        <li>Cada linha da spritesheet é uma animação. No personagem a ordem é: parado, andar, atacar e dano, cada uma virada para baixo, esquerda, direita e cima.</li>
+      </ol>
+    </details>
+  </section>
+
+  <!-- GALERIA -->
+  <section class="panel" id="tab-galeria" hidden>
+    <h2>Seus assets salvos</h2>
+    <p class="hint">Ficam guardados neste navegador, neste celular. Baixe um backup de vez em quando para não perder nada.</p>
+    <div class="gallery" id="galeria"></div>
+    <div class="row">
+      <button type="button" class="btn" id="galBackup">Baixar backup</button>
+      <label class="btn" for="galAbrir">Abrir backup</label>
+      <input type="file" id="galAbrir" accept=".json,application/json" hidden>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs" role="tablist">
+  <button type="button" role="tab" data-aba="criar" aria-selected="true">Criar</button>
+  <button type="button" role="tab" data-aba="ia" class="ia" aria-selected="false">IA ✦</button>
+  <button type="button" role="tab" data-aba="editar" aria-selected="false">Editar</button>
+  <button type="button" role="tab" data-aba="exportar" aria-selected="false">Exportar</button>
+  <button type="button" role="tab" data-aba="galeria" aria-selected="false">Galeria</button>
+</nav>
+<div class="toast" id="toast" hidden></div>
+
+<script src="js/base.js"></script>
+<script src="js/personagem.js"></script>
+<script src="js/monstros.js"></script>
+<script src="js/itens.js"></script>
+<script src="js/cenario.js"></script>
+<script src="js/exportar.js"></script>
+<script src="js/ia.js"></script>
+<script src="js/app.js"></script>
+<script>
+(function(){const cv=document.getElementById('logo'),p=aleatorioPers('logo','guerreiro');Object.assign(p,{raca:'humano',pele:'#ecbd96',cabelo:'espetado',corCabelo:'#ffb547',olhos:'grande',arma:'nenhuma',escudo:'nenhum',chapeu:'nenhum',capa:'nenhuma',corRoupa:'#5a3fa0'});
+  desenharPixels(cv.getContext('2d'),desenharPers(p,'baixo','parado',0),32,32,1)})();
+</script>
+</body>
+</html>
